@@ -19,7 +19,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# CUSTOM CSS — REDESIGN
+# CUSTOM CSS — DARK AMOLED
 # ==========================================
 st.markdown("""
 <style>
@@ -30,18 +30,18 @@ html, body, [class*="css"] {
     font-family: 'Syne', sans-serif !important;
 }
 
-/* Background utama */
+/* Background AMOLED */
 .stApp {
-    background-color: #f4f2ed !important;
+    background-color: #0A0A0A !important;
 }
 
-/* Sembunyikan header bawaan Streamlit */
+/* Sembunyikan header bawaan */
 #MainMenu, header, footer { visibility: hidden; }
 
 /* ── APP HEADER ── */
 .qc-header {
-    background: white;
-    border: 0.5px solid rgba(0,0,0,0.08);
+    background: #111111;
+    border: 1px solid #222222;
     border-radius: 12px;
     padding: 20px 24px;
     margin-bottom: 20px;
@@ -65,14 +65,14 @@ html, body, [class*="css"] {
 .qc-title {
     font-size: 26px;
     font-weight: 700;
-    color: #1a1a1a;
+    color: #F0F0F0;
     margin: 0;
     letter-spacing: -0.02em;
     line-height: 1.2;
 }
 .qc-subtitle {
     font-size: 12px;
-    color: #888;
+    color: #888888;
     font-family: 'JetBrains Mono', monospace;
     margin-top: 4px;
 }
@@ -83,8 +83,8 @@ html, body, [class*="css"] {
 
 /* ── STEP CARDS ── */
 .step-card {
-    background: white;
-    border: 0.5px solid rgba(0,0,0,0.08);
+    background: #111111;
+    border: 1px solid #222222;
     border-radius: 12px;
     margin-bottom: 16px;
     overflow: hidden;
@@ -94,8 +94,8 @@ html, body, [class*="css"] {
     align-items: center;
     gap: 12px;
     padding: 14px 18px;
-    background: #fafafa;
-    border-bottom: 0.5px solid rgba(0,0,0,0.06);
+    background: #1A1A1A;
+    border-bottom: 1px solid #222222;
 }
 .step-num {
     width: 28px;
@@ -114,7 +114,7 @@ html, body, [class*="css"] {
 .step-title {
     font-size: 14px;
     font-weight: 500;
-    color: #1a1a1a;
+    color: #F0F0F0;
     margin: 0;
 }
 
@@ -122,7 +122,7 @@ html, body, [class*="css"] {
 .field-label {
     font-size: 11px;
     font-weight: 500;
-    color: #888;
+    color: #AAAAAA;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     font-family: 'JetBrains Mono', monospace;
@@ -131,64 +131,53 @@ html, body, [class*="css"] {
 }
 
 /* ── INPUT FIELDS ── */
-.stTextInput > label { display: none !important; }
 .stTextInput > div > div > input {
-    background: #f8f7f4 !important;
-    border: 0.5px solid rgba(0,0,0,0.12) !important;
+    background: #1A1A1A !important;
+    border: 1px solid #333333 !important;
     border-radius: 8px !important;
-    font-family: 'Syne', sans-serif !important;
+    color: #F0F0F0 !important;
     font-size: 14px !important;
-    color: #1a1a1a !important;
     padding: 10px 14px !important;
 }
 .stTextInput > div > div > input:focus {
     border-color: #1D9E75 !important;
-    box-shadow: 0 0 0 2px rgba(29,158,117,0.12) !important;
+    box-shadow: 0 0 0 2px rgba(29,158,117,0.2) !important;
 }
 
 /* ── SELECTBOX ── */
-.stSelectbox > label { display: none !important; }
 .stSelectbox > div > div {
-    background: #f8f7f4 !important;
-    border: 0.5px solid rgba(0,0,0,0.12) !important;
+    background: #1A1A1A !important;
+    border: 1px solid #333333 !important;
     border-radius: 8px !important;
+    color: #F0F0F0 !important;
 }
 
 /* ── RADIO ── */
-.stRadio > label { display: none !important; }
-.stRadio > div { gap: 8px !important; }
 .stRadio > div > label {
-    background: #f8f7f4 !important;
-    border: 0.5px solid rgba(0,0,0,0.12) !important;
+    background: #1A1A1A !important;
+    border: 1px solid #333333 !important;
     border-radius: 8px !important;
-    padding: 8px 16px !important;
-    font-size: 13px !important;
-    font-family: 'Syne', sans-serif !important;
-    transition: all 0.15s !important;
-    cursor: pointer !important;
+    color: #F0F0F0 !important;
 }
 .stRadio > div > label:hover {
     border-color: #1D9E75 !important;
-    background: #E1F5EE !important;
+    background: #1F2A24 !important;
 }
 [data-testid="stRadio"] [data-checked="true"] > label {
-    background: #E1F5EE !important;
+    background: #1F2A24 !important;
     border-color: #1D9E75 !important;
-    color: #085041 !important;
-    font-weight: 500 !important;
+    color: #1D9E75 !important;
 }
 
 /* ── FILE UPLOADER ── */
-.stFileUploader > label { display: none !important; }
 [data-testid="stFileUploaderDropzone"] {
-    background: #f8f7f4 !important;
-    border: 1.5px dashed rgba(0,0,0,0.15) !important;
+    background: #1A1A1A !important;
+    border: 1.5px dashed #444444 !important;
     border-radius: 12px !important;
-    transition: all 0.15s !important;
 }
 [data-testid="stFileUploaderDropzone"]:hover {
     border-color: #1D9E75 !important;
-    background: #E1F5EE !important;
+    background: #1F2A24 !important;
 }
 
 /* ── BUTTON UTAMA ── */
@@ -197,150 +186,71 @@ html, body, [class*="css"] {
     color: white !important;
     border: none !important;
     border-radius: 8px !important;
-    font-family: 'Syne', sans-serif !important;
-    font-size: 15px !important;
     font-weight: 700 !important;
     padding: 14px !important;
-    letter-spacing: 0.02em !important;
     transition: all 0.15s !important;
-    width: 100% !important;
 }
 .stButton > button[kind="primary"]:hover {
-    background: #0F6E56 !important;
+    background: #17A36F !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 4px 14px rgba(29,158,117,0.25) !important;
-}
-.stButton > button[kind="primary"]:active {
-    transform: scale(0.99) !important;
-}
-
-/* ── BUTTON SEKUNDER ── */
-.stButton > button:not([kind="primary"]) {
-    background: white !important;
-    border: 0.5px solid rgba(0,0,0,0.15) !important;
-    border-radius: 8px !important;
-    font-family: 'Syne', sans-serif !important;
-    font-size: 13px !important;
-    color: #555 !important;
-    transition: all 0.15s !important;
-}
-.stButton > button:not([kind="primary"]):hover {
-    border-color: rgba(0,0,0,0.25) !important;
-    color: #1a1a1a !important;
 }
 
 /* ── DOWNLOAD BUTTON ── */
 .stDownloadButton > button {
     background: #1D9E75 !important;
     color: white !important;
-    border: none !important;
     border-radius: 8px !important;
-    font-family: 'Syne', sans-serif !important;
-    font-size: 15px !important;
     font-weight: 700 !important;
-    width: 100% !important;
-    padding: 14px !important;
-    transition: all 0.15s !important;
-}
-.stDownloadButton > button:hover {
-    background: #0F6E56 !important;
 }
 
 /* ── ALERT & INFO ── */
 .stWarning {
-    background: #FAEEDA !important;
-    border: 0.5px solid #EF9F27 !important;
-    border-radius: 8px !important;
-    color: #633806 !important;
+    background: #2A2A1F !important;
+    border: 1px solid #E6B800 !important;
+    color: #F0E6B0 !important;
 }
-.stInfo {
-    background: #E1F5EE !important;
-    border: 0.5px solid #5DCAA5 !important;
-    border-radius: 8px !important;
-    color: #085041 !important;
-}
-.stSuccess {
-    background: #E1F5EE !important;
-    border: 0.5px solid #1D9E75 !important;
-    border-radius: 8px !important;
-    color: #085041 !important;
+.stInfo, .stSuccess {
+    background: #1F2A24 !important;
+    border: 1px solid #1D9E75 !important;
+    color: #A1E8D0 !important;
 }
 .stError {
-    background: #FCEBEB !important;
-    border: 0.5px solid #E24B4A !important;
-    border-radius: 8px !important;
-    color: #501313 !important;
+    background: #2A1F1F !important;
+    border: 1px solid #E24B4A !important;
+    color: #F8B8B8 !important;
 }
 
-/* ── TOAST ── */
-[data-testid="stToast"] {
-    background: #E1F5EE !important;
-    border: 0.5px solid #1D9E75 !important;
-    border-radius: 10px !important;
-    color: #085041 !important;
-    font-family: 'Syne', sans-serif !important;
-}
-
-/* ── NUMBER INPUT ── */
-.stNumberInput > label { display: none !important; }
-.stNumberInput > div > div > input {
-    background: #f8f7f4 !important;
-    border: 0.5px solid rgba(0,0,0,0.12) !important;
-    border-radius: 8px !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: 14px !important;
-}
-
-/* ── DIVIDER ── */
-hr {
-    border: none !important;
-    border-top: 0.5px solid rgba(0,0,0,0.08) !important;
-    margin: 20px 0 !important;
-}
-
-/* ── CAPTION ── */
-.stCaption {
-    font-size: 12px !important;
-    color: #aaa !important;
-    font-family: 'JetBrains Mono', monospace !important;
-}
-
-/* ── PHOTO COUNT BADGE ── */
+/* ── PHOTO STAT ── */
 .photo-stat {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: white;
-    border: 0.5px solid rgba(0,0,0,0.08);
-    border-radius: 10px;
-    padding: 12px 18px;
+    background: #111111;
+    border: 1px solid #222222;
+    border-radius: 12px;
+    padding: 16px 20px;
     margin-top: 8px;
 }
 .photo-stat-num {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
     color: #1D9E75;
     font-family: 'JetBrains Mono', monospace;
-    line-height: 1;
 }
 .photo-stat-label {
-    font-size: 12px;
-    color: #888;
+    font-size: 13px;
+    color: #AAAAAA;
     font-family: 'JetBrains Mono', monospace;
 }
 
-/* Padding konten utama */
+/* Padding & Container */
 .block-container {
-    padding-top: 24px !important;
+    padding-top: 20px !important;
     padding-bottom: 40px !important;
     max-width: 680px !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-
 # ==========================================
-# FUNGSI UTAMA
+# FUNGSI UTAMA (tidak diubah)
 # ==========================================
 def log_traffic(user, toko, tgl_qc, layout):
     JSONBLOB_ID = "019e8740-72c4-7731-8328-0e2c67465233"
@@ -371,7 +281,6 @@ def log_traffic(user, toko, tgl_qc, layout):
     except Exception as e:
         st.error(f"⚠️ Sistem Traffic Error Koneksi: {e}")
 
-
 def correct_orientation(img):
     try:
         if hasattr(img, '_getexif') and img._getexif() is not None:
@@ -387,7 +296,6 @@ def correct_orientation(img):
         pass
     return img
 
-
 def extract_datetime(filename, uploaded_file_obj):
     match = re.search(r'(\d{4}-\d{2}-\d{2}) at (\d{2}\.\d{2}\.\d{2})', filename)
     if match:
@@ -396,7 +304,6 @@ def extract_datetime(filename, uploaded_file_obj):
         except:
             pass
     return datetime.min
-
 
 # ==========================================
 # HEADER
@@ -412,20 +319,18 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-
 # ==========================================
 # STEP 0 — IDENTITAS PENGGUNA
 # ==========================================
 st.markdown("""
-<div class="step-header" style="background:white;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px 12px 0 0;margin-bottom:0">
+<div class="step-header" style="background:#111111;border:1px solid #222222;border-radius:12px 12px 0 0;margin-bottom:0">
     <span class="step-num">👤</span>
     <span class="step-title">Identitas Pengguna</span>
 </div>
 """, unsafe_allow_html=True)
 
-with st.container():
-    st.markdown('<span class="field-label">Nama Pengguna (wajib diisi)</span>', unsafe_allow_html=True)
-    user_name = st.text_input("Nama Pengguna", placeholder="Masukkan nama Anda...", label_visibility="collapsed")
+st.markdown('<span class="field-label">Nama Pengguna (wajib diisi)</span>', unsafe_allow_html=True)
+user_name = st.text_input("Nama Pengguna", placeholder="Masukkan nama Anda...", label_visibility="collapsed")
 
 if not user_name:
     st.warning("⚠️ Silakan isi Nama Pengguna di atas agar sistem bisa digunakan.")
@@ -433,12 +338,14 @@ if not user_name:
 
 st.markdown("---")
 
+# (Bagian lainnya tetap sama seperti kode yang Anda kirim)
+# Saya tidak mengubah logika, hanya CSS-nya menjadi AMOLED Dark.
 
 # ==========================================
 # STEP 1 — INFORMASI LOKASI
 # ==========================================
 st.markdown("""
-<div class="step-header" style="background:white;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px 12px 0 0">
+<div class="step-header" style="background:#111111;border:1px solid #222222;border-radius:12px 12px 0 0">
     <span class="step-num">01</span>
     <span class="step-title">Informasi Lokasi QC — Untuk Nama File</span>
 </div>
@@ -454,19 +361,18 @@ with col2:
 
 st.markdown("---")
 
-
 # ==========================================
 # STEP 2 — TEMPLATE EXCEL
 # ==========================================
 st.markdown("""
-<div class="step-header" style="background:white;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px 12px 0 0">
+<div class="step-header" style="background:#111111;border:1px solid #222222;border-radius:12px 12px 0 0">
     <span class="step-num">02</span>
     <span class="step-title">Template Excel Master</span>
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown('<span class="field-label">Sumber Template</span>', unsafe_allow_html=True)
-mode_template = st.radio("Sumber Template", ["📤  Upload Manual", "📦  File Preset (GitHub)"], label_visibility="collapsed", horizontal=True)
+mode_template = st.radio("Sumber Template", ["📤 Upload Manual", "📦 File Preset (GitHub)"], label_visibility="collapsed", horizontal=True)
 
 excel_file = None
 if "Upload" in mode_template:
@@ -495,12 +401,11 @@ if excel_file:
 
 st.markdown("---")
 
-
 # ==========================================
 # STEP 3 — LAYOUT
 # ==========================================
 st.markdown("""
-<div class="step-header" style="background:white;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px 12px 0 0">
+<div class="step-header" style="background:#111111;border:1px solid #222222;border-radius:12px 12px 0 0">
     <span class="step-num">03</span>
     <span class="step-title">Pengaturan Layout & Ukuran Gambar</span>
 </div>
@@ -533,7 +438,6 @@ else:
     except:
         st.error("Format Rows/Columns salah! Gunakan angka dipisah koma.")
         st.stop()
-
     col_w, col_h = st.columns(2)
     with col_w:
         st.markdown('<span class="field-label">Col Width</span>', unsafe_allow_html=True)
@@ -541,7 +445,6 @@ else:
     with col_h:
         st.markdown('<span class="field-label">Row Height</span>', unsafe_allow_html=True)
         ROW_H = st.number_input("RowH", value=123.75, label_visibility="collapsed")
-
     col_iw, col_ih = st.columns(2)
     with col_iw:
         st.markdown('<span class="field-label">Image Width (cm)</span>', unsafe_allow_html=True)
@@ -552,12 +455,11 @@ else:
 
 st.markdown("---")
 
-
 # ==========================================
 # STEP 4 — UPLOAD FOTO
 # ==========================================
 st.markdown("""
-<div class="step-header" style="background:white;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px 12px 0 0">
+<div class="step-header" style="background:#111111;border:1px solid #222222;border-radius:12px 12px 0 0">
     <span class="step-num">04</span>
     <span class="step-title">Upload Foto QC Lapangan</span>
 </div>
@@ -594,12 +496,11 @@ else:
 
 st.markdown("---")
 
-
 # ==========================================
 # STEP 5 — EKSEKUSI
 # ==========================================
 st.markdown("""
-<div class="step-header" style="background:white;border:0.5px solid rgba(0,0,0,0.08);border-radius:12px 12px 0 0">
+<div class="step-header" style="background:#111111;border:1px solid #222222;border-radius:12px 12px 0 0">
     <span class="step-num">🚀</span>
     <span class="step-title">Eksekusi — Proses & Export Data</span>
 </div>
@@ -618,27 +519,22 @@ if st.button("⚡ MULAI EXPORT DAN PROSES DATA", type="primary", use_container_w
         with st.spinner("⏳ Sedang memproses dan mengompres foto... Mohon tunggu..."):
             try:
                 log_traffic(user_name, nama_toko, tanggal_qc, layout_option)
-
                 excel_file.seek(0)
                 wb = load_workbook(excel_file)
                 ws = wb[selected_sheet]
-
                 for c in COLS:
                     ws.column_dimensions[chr(64 + c)].width = COL_W
                 for r in ROWS:
                     ws.row_dimensions[r].height = ROW_H
-
                 sorted_photos = sorted(
                     uploaded_photos,
                     key=lambda x: extract_datetime(x.name, x),
                     reverse=True
                 )
-
                 all_cells = [f"{chr(64 + col)}{row}" for row in ROWS for col in COLS]
                 success_count = 0
                 temp_dir = "temp_web_photos"
                 os.makedirs(temp_dir, exist_ok=True)
-
                 for i in range(min(len(sorted_photos), len(all_cells))):
                     photo = sorted_photos[i]
                     temp_path = os.path.join(temp_dir, f"compressed_img_{i}.jpg")
@@ -648,22 +544,18 @@ if st.button("⚡ MULAI EXPORT DAN PROSES DATA", type="primary", use_container_w
                             img_pil = img_pil.convert("RGB")
                         img_pil.thumbnail((1280, 1280), PILImage.Resampling.LANCZOS)
                         img_pil.save(temp_path, format="JPEG", quality=82, optimize=True, subsampling=0)
-
                     img_excel = ExcelImage(temp_path)
                     img_excel.width = int(IMAGE_WIDTH_CM * 37.8)
                     img_excel.height = int(IMAGE_HEIGHT_CM * 37.8)
                     ws.add_image(img_excel, all_cells[i])
                     success_count += 1
-
                 output = BytesIO()
                 wb.save(output)
                 wb.close()
                 output.seek(0)
                 shutil.rmtree(temp_dir, ignore_errors=True)
-
                 final_filename = f"{nama_toko.strip()} {tanggal_qc.strip()}.xlsx"
                 st.success(f"✅ Berhasil menyusun & mengompres **{success_count} foto**! File siap diunduh.")
-
                 st.download_button(
                     label="📥 DOWNLOAD FILE HASIL",
                     data=output,
@@ -672,6 +564,5 @@ if st.button("⚡ MULAI EXPORT DAN PROSES DATA", type="primary", use_container_w
                     type="primary",
                     use_container_width=True
                 )
-
             except Exception as e:
                 st.error(f"❌ Terjadi kesalahan sistem saat memproses Excel: {e}")
