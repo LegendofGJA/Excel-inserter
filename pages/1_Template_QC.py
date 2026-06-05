@@ -10,7 +10,7 @@ from style import (
     log_traffic, correct_orientation, extract_datetime, get_preset_files,
 )
 
-st.set_page_config(page_title="Template QC", page_icon="📸", layout="wide")
+st.set_page_config(page_title="QC Image Inserter", page_icon="📸", layout="wide")
 inject_css()
 inject_sidebar_brand()
 
@@ -19,7 +19,7 @@ st.markdown(
     """
     <div class="page-head">
         <div class="page-head-icon">📸</div>
-        <h2>Template QC</h2>
+        <h2>QC Image Inserter</h2>
         <p>Susun foto QC lapangan ke dalam template Excel secara otomatis</p>
     </div>
     """,
