@@ -53,7 +53,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ROW 1 - INFO LOKASI & TEMPLATE
+# ROW 1 - INFO LOKASI & TEMPLATE EXCEL
 col_info, col_template = st.columns(2, gap="medium")
 
 with col_info:
