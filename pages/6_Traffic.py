@@ -33,12 +33,11 @@ try:
     if not isinstance(data, list):
         data = []
 except Exception:
-    st.error("Gagal mengambil data dari server. Cek koneksi internet.")
+    st.error("Gagal mengambil data dari server.")
 
 if data:
     df = pd.DataFrame(data)
 
-    # STATS
     total_entries = len(df)
     unique_users = df["Nama Pengguna"].nunique() if "Nama Pengguna" in df.columns else 0
     unique_stores = df["Nama Toko"].nunique() if "Nama Toko" in df.columns else 0
