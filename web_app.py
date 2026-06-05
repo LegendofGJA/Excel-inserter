@@ -24,20 +24,16 @@ st.set_page_config(
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
 /* Global */
 html, body, [class*="css"] {
     font-family: 'Syne', sans-serif !important;
 }
-
 /* Background AMOLED */
 .stApp {
     background-color: #0A0A0A !important;
 }
-
 /* Sembunyikan header bawaan */
 #MainMenu, header, footer { visibility: hidden; }
-
 /* ── APP HEADER ── */
 .qc-header {
     background: #111111;
@@ -80,7 +76,6 @@ html, body, [class*="css"] {
     font-size: 36px;
     margin-left: auto;
 }
-
 /* ── STEP CARDS ── */
 .step-card {
     background: #111111;
@@ -117,7 +112,6 @@ html, body, [class*="css"] {
     color: #F0F0F0;
     margin: 0;
 }
-
 /* ── FIELD LABELS ── */
 .field-label {
     font-size: 11px;
@@ -129,7 +123,6 @@ html, body, [class*="css"] {
     margin-bottom: 4px;
     display: block;
 }
-
 /* ── INPUT FIELDS ── */
 .stTextInput > div > div > input {
     background: #1A1A1A !important;
@@ -143,7 +136,6 @@ html, body, [class*="css"] {
     border-color: #1D9E75 !important;
     box-shadow: 0 0 0 2px rgba(29,158,117,0.2) !important;
 }
-
 /* ── SELECTBOX ── */
 .stSelectbox > div > div {
     background: #1A1A1A !important;
@@ -151,7 +143,6 @@ html, body, [class*="css"] {
     border-radius: 8px !important;
     color: #F0F0F0 !important;
 }
-
 /* ── RADIO ── */
 .stRadio > div > label {
     background: #1A1A1A !important;
@@ -168,7 +159,6 @@ html, body, [class*="css"] {
     border-color: #1D9E75 !important;
     color: #1D9E75 !important;
 }
-
 /* ── FILE UPLOADER ── */
 [data-testid="stFileUploaderDropzone"] {
     background: #1A1A1A !important;
@@ -179,7 +169,6 @@ html, body, [class*="css"] {
     border-color: #1D9E75 !important;
     background: #1F2A24 !important;
 }
-
 /* ── BUTTON UTAMA ── */
 .stButton > button[kind="primary"] {
     background: #1D9E75 !important;
@@ -194,7 +183,6 @@ html, body, [class*="css"] {
     background: #17A36F !important;
     transform: translateY(-1px) !important;
 }
-
 /* ── DOWNLOAD BUTTON ── */
 .stDownloadButton > button {
     background: #1D9E75 !important;
@@ -202,7 +190,6 @@ html, body, [class*="css"] {
     border-radius: 8px !important;
     font-weight: 700 !important;
 }
-
 /* ── ALERT & INFO ── */
 .stWarning {
     background: #2A2A1F !important;
@@ -219,7 +206,6 @@ html, body, [class*="css"] {
     border: 1px solid #E24B4A !important;
     color: #F8B8B8 !important;
 }
-
 /* ── PHOTO STAT ── */
 .photo-stat {
     background: #111111;
@@ -239,7 +225,6 @@ html, body, [class*="css"] {
     color: #AAAAAA;
     font-family: 'JetBrains Mono', monospace;
 }
-
 /* Padding & Container */
 .block-container {
     padding-top: 20px !important;
@@ -250,9 +235,9 @@ html, body, [class*="css"] {
 """, unsafe_allow_html=True)
 
 # ==========================================
-# FUNGSI UTAMA (tidak diubah)
+# FUNGSI TRAFFIC (SUDAH DIUBAH)
 # ==========================================
-def log_traffic(user, toko, tgl_qc, layout):
+def log_traffic(user, toko, tgl_qc, preset, target_sheet, layout):
     JSONBLOB_ID = "019e8740-72c4-7731-8328-0e2c67465233"
     API_URL = f"https://jsonblob.com/api/jsonBlob/{JSONBLOB_ID}"
     try:
@@ -263,15 +248,17 @@ def log_traffic(user, toko, tgl_qc, layout):
             data = []
         if not isinstance(data, list):
             data = []
+            
         tz_jkt = timezone(timedelta(hours=7))
         timestamp = datetime.now(tz_jkt).strftime("%d %B %y / %H:%M")
+        
         data.append({
             "Nama Pengguna": user,
             "Nama Toko": toko,
-            "Tanggal QC": tgl_qc,
-            "Timestamp": timestamp,
-            "Ukuran Layout": layout
+            "Date QC & TS": f"{tgl_qc} & {timestamp}",
+            "Template": f'File Preset "{preset}", Target Sheet "{target_sheet}", Layout "{layout}"'
         })
+        
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
         put_response = requests.put(API_URL, json=data, headers=headers)
         if put_response.status_code in [200, 201]:
@@ -328,18 +315,12 @@ st.markdown("""
     <span class="step-title">Identitas Pengguna</span>
 </div>
 """, unsafe_allow_html=True)
-
 st.markdown('<span class="field-label">Nama Pengguna (wajib diisi)</span>', unsafe_allow_html=True)
 user_name = st.text_input("Nama Pengguna", placeholder="Masukkan nama Anda...", label_visibility="collapsed")
-
 if not user_name:
     st.warning("⚠️ Silakan isi Nama Pengguna di atas agar sistem bisa digunakan.")
     st.stop()
-
 st.markdown("---")
-
-# (Bagian lainnya tetap sama seperti kode yang Anda kirim)
-# Saya tidak mengubah logika, hanya CSS-nya menjadi AMOLED Dark.
 
 # ==========================================
 # STEP 1 — INFORMASI LOKASI
@@ -350,7 +331,6 @@ st.markdown("""
     <span class="step-title">Informasi Lokasi QC — Untuk Nama File</span>
 </div>
 """, unsafe_allow_html=True)
-
 col1, col2 = st.columns(2)
 with col1:
     st.markdown('<span class="field-label">Nama Toko / Area</span>', unsafe_allow_html=True)
@@ -358,7 +338,6 @@ with col1:
 with col2:
     st.markdown('<span class="field-label">Tanggal QC</span>', unsafe_allow_html=True)
     tanggal_qc = st.text_input("Tanggal QC", placeholder="Contoh: 10 Mar 26", label_visibility="collapsed")
-
 st.markdown("---")
 
 # ==========================================
@@ -370,10 +349,8 @@ st.markdown("""
     <span class="step-title">Template Excel Master</span>
 </div>
 """, unsafe_allow_html=True)
-
 st.markdown('<span class="field-label">Sumber Template</span>', unsafe_allow_html=True)
 mode_template = st.radio("Sumber Template", ["📤 Upload Manual", "📦 File Preset (GitHub)"], label_visibility="collapsed", horizontal=True)
-
 excel_file = None
 if "Upload" in mode_template:
     st.markdown('<span class="field-label">Pilih file Excel (.xlsx)</span>', unsafe_allow_html=True)
@@ -386,7 +363,6 @@ else:
             excel_file = BytesIO(f.read())
     else:
         st.error(f"⚠️ File '{preset_pilihan}' belum tersedia di folder server.")
-
 selected_sheet = None
 if excel_file:
     try:
@@ -398,7 +374,6 @@ if excel_file:
         selected_sheet = st.selectbox("Sheet", sheet_names, label_visibility="collapsed")
     except Exception as e:
         st.error(f"Gagal membaca struktur Excel: {e}")
-
 st.markdown("---")
 
 # ==========================================
@@ -410,10 +385,8 @@ st.markdown("""
     <span class="step-title">Pengaturan Layout & Ukuran Gambar</span>
 </div>
 """, unsafe_allow_html=True)
-
 st.markdown('<span class="field-label">Pilih Opsi Layout</span>', unsafe_allow_html=True)
 layout_option = st.selectbox("Layout", ["LGJA", "Sultan", "Vano", "Custom"], label_visibility="collapsed")
-
 if layout_option == "LGJA":
     ROWS = [2, 4, 6, 8, 10, 12]
     COLS = list(range(1, 13))
@@ -452,7 +425,6 @@ else:
     with col_ih:
         st.markdown('<span class="field-label">Image Height (cm)</span>', unsafe_allow_html=True)
         IMAGE_HEIGHT_CM = st.number_input("ImgH", value=4.32, label_visibility="collapsed")
-
 st.markdown("---")
 
 # ==========================================
@@ -464,16 +436,12 @@ st.markdown("""
     <span class="step-title">Upload Foto QC Lapangan</span>
 </div>
 """, unsafe_allow_html=True)
-
 st.info("💡 Tekan Tahan / Pilih Banyak Foto Sekaligus dari Galeri HP Anda.")
-
 if "uploader_key" not in st.session_state:
     st.session_state.uploader_key = 0
-
 if st.button("🗑️ Reset — Hapus Semua Foto"):
     st.session_state.uploader_key += 1
     st.rerun()
-
 uploaded_photos = st.file_uploader(
     "Foto QC",
     type=["jpg", "jpeg", "png", "webp"],
@@ -481,7 +449,6 @@ uploaded_photos = st.file_uploader(
     key=f"photos_{st.session_state.uploader_key}",
     label_visibility="collapsed"
 )
-
 if uploaded_photos:
     st.markdown(f"""
     <div class="photo-stat">
@@ -493,7 +460,6 @@ if uploaded_photos:
     """, unsafe_allow_html=True)
 else:
     st.caption("Belum ada foto yang dipilih")
-
 st.markdown("---")
 
 # ==========================================
@@ -518,7 +484,15 @@ if st.button("⚡ MULAI EXPORT DAN PROSES DATA", type="primary", use_container_w
     else:
         with st.spinner("⏳ Sedang memproses dan mengompres foto... Mohon tunggu..."):
             try:
-                log_traffic(user_name, nama_toko, tanggal_qc, layout_option)
+                # Tentukan nama preset
+                if "Upload" in mode_template:
+                    preset_name = "Manual Upload"
+                else:
+                    preset_name = preset_pilihan
+                
+                # Catat traffic dengan format baru
+                log_traffic(user_name, nama_toko, tanggal_qc, preset_name, selected_sheet, layout_option)
+                
                 excel_file.seek(0)
                 wb = load_workbook(excel_file)
                 ws = wb[selected_sheet]
@@ -526,6 +500,7 @@ if st.button("⚡ MULAI EXPORT DAN PROSES DATA", type="primary", use_container_w
                     ws.column_dimensions[chr(64 + c)].width = COL_W
                 for r in ROWS:
                     ws.row_dimensions[r].height = ROW_H
+                
                 sorted_photos = sorted(
                     uploaded_photos,
                     key=lambda x: extract_datetime(x.name, x),
@@ -535,6 +510,7 @@ if st.button("⚡ MULAI EXPORT DAN PROSES DATA", type="primary", use_container_w
                 success_count = 0
                 temp_dir = "temp_web_photos"
                 os.makedirs(temp_dir, exist_ok=True)
+                
                 for i in range(min(len(sorted_photos), len(all_cells))):
                     photo = sorted_photos[i]
                     temp_path = os.path.join(temp_dir, f"compressed_img_{i}.jpg")
@@ -549,11 +525,13 @@ if st.button("⚡ MULAI EXPORT DAN PROSES DATA", type="primary", use_container_w
                     img_excel.height = int(IMAGE_HEIGHT_CM * 37.8)
                     ws.add_image(img_excel, all_cells[i])
                     success_count += 1
+                
                 output = BytesIO()
                 wb.save(output)
                 wb.close()
                 output.seek(0)
                 shutil.rmtree(temp_dir, ignore_errors=True)
+                
                 final_filename = f"{nama_toko.strip()} {tanggal_qc.strip()}.xlsx"
                 st.success(f"✅ Berhasil menyusun & mengompres **{success_count} foto**! File siap diunduh.")
                 st.download_button(
