@@ -17,13 +17,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# TOOLS GRID - 2 ROWS x 3 COLS
+# TOOLS GRID
 st.markdown(
     """
     <div class="tools-grid">
         <div class="tool-card">
             <div class="tool-card-icon">📸</div>
-            <h3>Template QC</h3>
+            <h3>QC Image Inserter</h3>
             <p>Upload foto QC dan susun otomatis ke template Excel master</p>
             <span class="tool-card-tag">TOOL UTAMA</span>
         </div>
