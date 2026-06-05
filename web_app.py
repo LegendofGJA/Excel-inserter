@@ -29,7 +29,6 @@ st.markdown("""
 html, body, [class*="css"] { font-family: 'Syne', sans-serif !important; }
 .stApp { background-color: #0A0A0A !important; }
 #MainMenu, header, footer { visibility: hidden; }
-
 .qc-header {
     background: #111111; border: 1px solid #222222; border-radius: 12px;
     padding: 20px 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px;
@@ -39,7 +38,6 @@ html, body, [class*="css"] { font-family: 'Syne', sans-serif !important; }
 .qc-title { font-size: 26px; font-weight: 700; color: #F0F0F0; margin: 0; letter-spacing: -0.02em; }
 .qc-subtitle { font-size: 12px; color: #888888; font-family: 'JetBrains Mono', monospace; margin-top: 4px; }
 .qc-logo { font-size: 36px; margin-left: auto; }
-
 .step-header {
     display: flex; align-items: center; gap: 12px; padding: 14px 18px;
     background: #1A1A1A; border-bottom: 1px solid #222222; border-radius: 12px 12px 0 0;
@@ -77,17 +75,17 @@ def log_traffic(user, toko, tgl_qc, preset, target_sheet, layout):
             data = []
         if not isinstance(data, list):
             data = []
-            
+           
         tz_jkt = timezone(timedelta(hours=7))
         timestamp = datetime.now(tz_jkt).strftime("%d %B %y / %H:%M")
-        
+       
         data.append({
             "Nama Pengguna": user,
             "Nama Toko": toko,
             "Date QC & TS": f"{tgl_qc} & {timestamp}",
             "Template": f'File Preset "{preset}", Target Sheet "{target_sheet}", Layout "{layout}"'
         })
-        
+       
         headers = {'Content-Type': 'application/json', 'Accept': 'application/json'}
         put_response = requests.put(API_URL, json=data, headers=headers)
         if put_response.status_code in [200, 201]:
@@ -97,6 +95,9 @@ def log_traffic(user, toko, tgl_qc, preset, target_sheet, layout):
     except Exception as e:
         st.error(f"⚠️ Sistem Traffic Error Koneksi: {e}")
 
+# ==========================================
+# FUNGSI LAIN
+# ==========================================
 def correct_orientation(img):
     try:
         if hasattr(img, '_getexif') and img._getexif() is not None:
@@ -122,38 +123,48 @@ def extract_datetime(filename, uploaded_file_obj):
     return datetime.min
 
 # ==========================================
-# FUNGSI BARU: MENAMBAHKAN GAMBAR DI TENGAH CELL
+# FUNGSI GAMBAR DI TENGAH CELL (SUDAH DIPERBAIKI)
 # ==========================================
 def add_image_to_center(ws, img_path, cell, img_width_px, img_height_px):
     img = ExcelImage(img_path)
     img.width = img_width_px
     img.height = img_height_px
-    
-    # Anchor ke cell
+
+    # Parsing cell (contoh: "A5" → col='A', row=5)
+    col_letter = cell[0].upper()
+    row_num = int(cell[1:])
+
+    # Convert column letter to 0-based index
+    col_idx = ord(col_letter) - ord('A')
+
     anchor = OneCellAnchor(
         _from=AnchorMarker(
-            col=cell[0], 
-            row=int(cell[1:]) - 1,  # openpyxl 0-based
+            col=col_idx,           # Harus integer
+            row=row_num - 1,       # openpyxl pakai 0-based row
             colOff=0,
             rowOff=0
         )
     )
-    
-    # Hitung offset agar gambar berada di tengah
-    cell_width_px = ws.column_dimensions[cell[0]].width * 7.5   # approx conversion
-    cell_height_px = ws.row_dimensions[int(cell[1:])].height * 1.34 if ws.row_dimensions[int(cell[1:])].height else 100
-    
+
+    # Hitung ukuran cell untuk centering
+    try:
+        cell_width_px = (ws.column_dimensions[col_letter].width or 20) * 7.5
+        cell_height_px = (ws.row_dimensions[row_num].height or 100) * 1.34
+    except:
+        cell_width_px = 300
+        cell_height_px = 300
+
     x_offset = int((cell_width_px - img_width_px) / 2)
     y_offset = int((cell_height_px - img_height_px) / 2)
-    
+
     anchor._from.colOff = x_offset * 9525   # EMU unit
     anchor._from.rowOff = y_offset * 9525
-    
+
     img.anchor = anchor
     ws.add_image(img)
 
 # ==========================================
-# HEADER & STEPS (sama seperti sebelumnya)
+# HEADER & STEPS
 # ==========================================
 st.markdown("""
 <div class="qc-header">
@@ -166,7 +177,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# STEP 0
+# STEP 0 — Identitas
 st.markdown("""<div class="step-header"><span class="step-num">👤</span><span class="step-title">Identitas Pengguna</span></div>""", unsafe_allow_html=True)
 st.markdown('<span class="field-label">Nama Pengguna (wajib diisi)</span>', unsafe_allow_html=True)
 user_name = st.text_input("Nama Pengguna", placeholder="Masukkan nama Anda...", label_visibility="collapsed")
@@ -175,7 +186,7 @@ if not user_name:
     st.stop()
 st.markdown("---")
 
-# STEP 1
+# STEP 1 — Informasi Lokasi
 st.markdown("""<div class="step-header"><span class="step-num">01</span><span class="step-title">Informasi Lokasi QC — Untuk Nama File</span></div>""", unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 with col1:
@@ -186,13 +197,14 @@ with col2:
     tanggal_qc = st.text_input("Tanggal QC", placeholder="Contoh: 10 Mar 26", label_visibility="collapsed")
 st.markdown("---")
 
-# STEP 2 - Template
+# STEP 2 — Template Excel
 st.markdown("""<div class="step-header"><span class="step-num">02</span><span class="step-title">Template Excel Master</span></div>""", unsafe_allow_html=True)
 st.markdown('<span class="field-label">Sumber Template</span>', unsafe_allow_html=True)
 mode_template = st.radio("Sumber Template", ["📤 Upload Manual", "📦 File Preset (GitHub)"], label_visibility="collapsed", horizontal=True)
 
 excel_file = None
 preset_pilihan = None
+
 if "Upload" in mode_template:
     excel_file = st.file_uploader("Excel", type=["xlsx"], label_visibility="collapsed")
 else:
@@ -214,7 +226,7 @@ if excel_file:
         st.error(f"Gagal membaca struktur Excel: {e}")
 st.markdown("---")
 
-# STEP 3 - Layout (sama)
+# STEP 3 — Layout
 st.markdown("""<div class="step-header"><span class="step-num">03</span><span class="step-title">Pengaturan Layout & Ukuran Gambar</span></div>""", unsafe_allow_html=True)
 st.markdown('<span class="field-label">Pilih Opsi Layout</span>', unsafe_allow_html=True)
 layout_option = st.selectbox("Layout", ["LGJA", "Sultan", "Vano", "Custom"], label_visibility="collapsed")
@@ -230,10 +242,11 @@ elif layout_option in ["Sultan", "Vano"]:
     COL_W, ROW_H = 20.43, 123.75
     IMAGE_WIDTH_CM, IMAGE_HEIGHT_CM = 3.2, 4.10
 else:
-    # Custom layout (tetap sama seperti sebelumnya)
     col_r, col_c = st.columns(2)
-    with col_r: r_in = st.text_input("Rows", "2,4,6,8,10,12", label_visibility="collapsed")
-    with col_c: c_in = st.text_input("Cols", "1,2,3,4,5,6", label_visibility="collapsed")
+    with col_r:
+        r_in = st.text_input("Rows", "2,4,6,8,10,12", label_visibility="collapsed")
+    with col_c:
+        c_in = st.text_input("Cols", "1,2,3,4,5,6", label_visibility="collapsed")
     try:
         ROWS = [int(x.strip()) for x in r_in.split(",")]
         COLS = [int(x.strip()) for x in c_in.split(",")]
@@ -248,7 +261,7 @@ else:
     with col_ih: IMAGE_HEIGHT_CM = st.number_input("ImgH", value=4.32, label_visibility="collapsed")
 st.markdown("---")
 
-# STEP 4 - Upload Foto (sama)
+# STEP 4 — Upload Foto
 st.markdown("""<div class="step-header"><span class="step-num">04</span><span class="step-title">Upload Foto QC Lapangan</span></div>""", unsafe_allow_html=True)
 st.info("💡 Tekan Tahan / Pilih Banyak Foto Sekaligus dari Galeri HP Anda.")
 if "uploader_key" not in st.session_state:
@@ -257,11 +270,21 @@ if st.button("🗑️ Reset — Hapus Semua Foto"):
     st.session_state.uploader_key += 1
     st.rerun()
 
-uploaded_photos = st.file_uploader("Foto QC", type=["jpg", "jpeg", "png", "webp"], accept_multiple_files=True,
-                                   key=f"photos_{st.session_state.uploader_key}", label_visibility="collapsed")
+uploaded_photos = st.file_uploader(
+    "Foto QC",
+    type=["jpg", "jpeg", "png", "webp"],
+    accept_multiple_files=True,
+    key=f"photos_{st.session_state.uploader_key}",
+    label_visibility="collapsed"
+)
 
 if uploaded_photos:
-    st.markdown(f"""<div class="photo-stat"><div><div class="photo-stat-num">{len(uploaded_photos)}</div><div class="photo-stat-label">foto dipilih</div></div></div>""", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="photo-stat">
+        <div><div class="photo-stat-num">{len(uploaded_photos)}</div>
+        <div class="photo-stat-label">foto dipilih</div></div>
+    </div>
+    """, unsafe_allow_html=True)
 st.markdown("---")
 
 # ==========================================
@@ -308,7 +331,7 @@ if st.button("⚡ MULAI EXPORT DAN PROSES DATA", type="primary", use_container_w
                 for i in range(min(len(sorted_photos), len(all_cells))):
                     photo = sorted_photos[i]
                     temp_path = os.path.join(temp_dir, f"compressed_img_{i}.jpg")
-                    
+                   
                     with PILImage.open(photo) as img_pil:
                         img_pil = correct_orientation(img_pil)
                         if img_pil.mode in ("RGBA", "P"):
@@ -316,7 +339,7 @@ if st.button("⚡ MULAI EXPORT DAN PROSES DATA", type="primary", use_container_w
                         img_pil.thumbnail((1280, 1280), PILImage.Resampling.LANCZOS)
                         img_pil.save(temp_path, format="JPEG", quality=82, optimize=True, subsampling=0)
 
-                    # Gunakan fungsi baru untuk center image
+                    # Tambah gambar di tengah cell
                     add_image_to_center(ws, temp_path, all_cells[i], img_width_px, img_height_px)
                     success_count += 1
 
@@ -336,5 +359,6 @@ if st.button("⚡ MULAI EXPORT DAN PROSES DATA", type="primary", use_container_w
                     type="primary",
                     use_container_width=True
                 )
+
             except Exception as e:
                 st.error(f"❌ Terjadi kesalahan: {e}")
