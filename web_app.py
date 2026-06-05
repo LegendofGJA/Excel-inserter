@@ -418,12 +418,12 @@ if layout_option == "LGJA":
     ROWS = [2, 4, 6, 8, 10, 12]
     COLS = list(range(1, 13))
     COL_W, ROW_H = 41, 246
-    IMAGE_WIDTH_CM, IMAGE_HEIGHT_CM = 6.4, 8.53
+    IMAGE_WIDTH_CM, IMAGE_HEIGHT_CM = 6.4, 8.30
 elif layout_option in ["Sultan", "Vano"]:
     ROWS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
     COLS = [1, 2, 3, 4, 5, 6]
     COL_W, ROW_H = 20.43, 123.75
-    IMAGE_WIDTH_CM, IMAGE_HEIGHT_CM = 3.2, 4.32
+    IMAGE_WIDTH_CM, IMAGE_HEIGHT_CM = 3.2, 4.10
 else:
     col_r, col_c = st.columns(2)
     with col_r:
