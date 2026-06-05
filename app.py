@@ -17,13 +17,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# TOOLS GRID
+# TOOLS GRID - 2 ROWS x 3 COLS
 st.markdown(
     """
     <div class="tools-grid">
         <div class="tool-card">
             <div class="tool-card-icon">📸</div>
-            <h3>QC Image Inserter</h3>
+            <h3>Template QC</h3>
             <p>Upload foto QC dan susun otomatis ke template Excel master</p>
             <span class="tool-card-tag">TOOL UTAMA</span>
         </div>
@@ -32,6 +32,24 @@ st.markdown(
             <h3>Image Compress</h3>
             <p>Kompres batch foto untuk kurangi ukuran file tanpa hilang kualitas</p>
             <span class="tool-card-tag">UTILITAS</span>
+        </div>
+        <div class="tool-card">
+            <div class="tool-card-icon">💧</div>
+            <h3>Watermark</h3>
+            <p>Tambah watermark teks di foto seperti lokasi, tanggal, dan nama toko</p>
+            <span class="tool-card-tag">UTILITAS</span>
+        </div>
+        <div class="tool-card">
+            <div class="tool-card-icon">✏️</div>
+            <h3>Batch Rename</h3>
+            <p>Rename ratusan foto sekaligus dengan format penamaan yang konsisten</p>
+            <span class="tool-card-tag">UTILITAS</span>
+        </div>
+        <div class="tool-card">
+            <div class="tool-card-icon">📄</div>
+            <h3>PDF Converter</h3>
+            <p>Ubah file Excel hasil export menjadi PDF siap kirim ke klien</p>
+            <span class="tool-card-tag">KONVERSI</span>
         </div>
         <div class="tool-card">
             <div class="tool-card-icon">📊</div>
