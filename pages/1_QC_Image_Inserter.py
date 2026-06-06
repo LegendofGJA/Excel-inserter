@@ -94,7 +94,7 @@ with col_template:
             with open(preset_path, "rb") as f:
                 excel_file = BytesIO(f.read())
         else:
-            st.warning("Folder 'presets/' kosong. Upload file .xlsx ke folder presets/ di repo Anda.")
+            st.warning("Folder 'presets/' kosong.")
 
     selected_sheet = None
     if excel_file:
@@ -161,6 +161,20 @@ with col_foto:
             <div class="upload-head-icon">📸</div>
             <h3>Upload Foto QC</h3>
             <p>Pilih semua foto sekaligus dari galeri HP</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        """
+        <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2);
+             border-radius:10px; padding:10px 14px; margin-bottom:14px;">
+            <p style="color:#fcd34d; font-size:0.78rem; margin:0; line-height:1.5;">
+                <b>Tips HP:</b> Jika foto dari Google Photos tidak muncul,
+                gunakan <b>File Manager</b> atau <b>Gallery bawaan</b> HP.
+                Google Photos sering memutus koneksi saat berpindah app.
+            </p>
         </div>
         """,
         unsafe_allow_html=True,
