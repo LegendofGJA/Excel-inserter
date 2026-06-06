@@ -1,6 +1,7 @@
 import streamlit as st
 import zipfile
 import os
+from io import BytesIO
 from style import inject_css, inject_sidebar_brand, inject_footer
 
 st.set_page_config(page_title="Batch Rename", page_icon="✏️", layout="wide")
