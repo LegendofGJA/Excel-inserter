@@ -7,9 +7,13 @@ textColor = "#eaeaf2"
 font = "sans serif"
 
 [server]
-maxUploadSize = 200
+maxUploadSize = 500
 enableCORS = false
-enableXsrfProtection = true
+enableXsrfProtection = false
+enableWebsocketCompression = true
+headless = true
 
 [browser]
 gatherUsageStats = false
+serverAddress = "0.0.0.0"
+serverPort = 8501
