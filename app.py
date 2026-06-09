@@ -21,7 +21,7 @@ st.markdown(
 st.markdown(
     """
     <div class="tools-grid">
-        <a href="/QC_Image_Inserter" class="tool-card-link">
+        <a href="/QC_Image_Inserter" class="tool-card-link" target="_self">
             <div class="tool-card">
                 <div class="tool-card-icon">📸</div>
                 <h3>QC Image Inserter</h3>
@@ -29,7 +29,7 @@ st.markdown(
                 <span class="tool-card-tag">TOOL UTAMA</span>
             </div>
         </a>
-        <a href="/Image_Compress" class="tool-card-link">
+        <a href="/Image_Compress" class="tool-card-link" target="_self">
             <div class="tool-card">
                 <div class="tool-card-icon">🗜️</div>
                 <h3>Image Compress</h3>
@@ -37,7 +37,7 @@ st.markdown(
                 <span class="tool-card-tag">UTILITAS</span>
             </div>
         </a>
-        <a href="/Watermark" class="tool-card-link">
+       <a href="/Watermark" class="tool-card-link" target="_self">
             <div class="tool-card">
                 <div class="tool-card-icon">💧</div>
                 <h3>Watermark</h3>
@@ -45,7 +45,7 @@ st.markdown(
                 <span class="tool-card-tag">UTILITAS</span>
             </div>
         </a>
-        <a href="/Batch_Rename" class="tool-card-link">
+        <a href="/Batch_Rename" class="tool-card-link" target="_self">
             <div class="tool-card">
                 <div class="tool-card-icon">✏️</div>
                 <h3>Batch Rename</h3>
@@ -53,7 +53,7 @@ st.markdown(
                 <span class="tool-card-tag">UTILITAS</span>
             </div>
         </a>
-        <a href="/PDF_Converter" class="tool-card-link">
+        <a href="/PDF_Converter" class="tool-card-link" target="_self">
             <div class="tool-card">
                 <div class="tool-card-icon">📄</div>
                 <h3>PDF Converter</h3>
@@ -61,7 +61,7 @@ st.markdown(
                 <span class="tool-card-tag">KONVERSI</span>
             </div>
         </a>
-        <a href="/Traffic" class="tool-card-link">
+       <a href="/Traffic" class="tool-card-link" target="_self">
             <div class="tool-card">
                 <div class="tool-card-icon">📊</div>
                 <h3>Traffic Log</h3>
