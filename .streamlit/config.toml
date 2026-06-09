@@ -12,6 +12,8 @@ enableCORS = false
 enableXsrfProtection = false
 enableWebsocketCompression = true
 headless = true
+websocketPingInterval = 30
+websocketPingTimeout = 120
 
 [browser]
 gatherUsageStats = false
