@@ -7,7 +7,8 @@ from PIL import Image as PILImage
 from io import BytesIO
 from style import (
     inject_css, inject_sidebar_brand, inject_footer,
-    log_traffic, correct_orientation, extract_datetime, get_preset_files,
+    log_traffic, correct_orientation, extract_datetime,
+    get_preset_files, convert_date_to_english,
 )
 
 st.set_page_config(page_title="QC Image Inserter", page_icon="📸", layout="wide")
@@ -84,12 +85,15 @@ with col_template:
     mode_template = st.radio("Sumber template:", ["Upload Manual", "File Preset"], horizontal=True)
 
     excel_file = None
+    preset_name = ""
     if mode_template == "Upload Manual":
         excel_file = st.file_uploader("Pilih file Excel (.xlsx)", type=["xlsx"], label_visibility="collapsed")
+        preset_name = "Upload Manual"
     else:
         available_presets = get_preset_files()
         if available_presets:
             preset_pilihan = st.selectbox("Pilih file preset:", available_presets)
+            preset_name = preset_pilihan
             preset_path = os.path.join("presets", preset_pilihan)
             with open(preset_path, "rb") as f:
                 excel_file = BytesIO(f.read())
@@ -106,6 +110,16 @@ with col_template:
             selected_sheet = st.selectbox("Target Sheet:", sheet_names)
         except Exception as e:
             st.error(f"Gagal membaca struktur Excel: {e}")
+
+# CELL WRITING MODE
+st.markdown("---")
+st.markdown("##### Store Name, Audit & Date QC")
+cell_mode = st.radio(
+    "Pilih mode pengisian cell Excel (B6, B7, D6):",
+    ["Manual", "Auto"],
+    horizontal=True,
+    help="Manual: Anda isi sendiri di Excel setelah download. Auto: Sistem otomatis isi dari data yang sudah dimasukkan.",
+)
 
 # ROW 2 - LAYOUT & UPLOAD FOTO
 col_layout, col_foto = st.columns(2, gap="medium")
@@ -167,16 +181,13 @@ with col_foto:
     )
 
     st.markdown(
-        """
-        <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2);
+        """<div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2);
              border-radius:10px; padding:10px 14px; margin-bottom:14px;">
             <p style="color:#fcd34d; font-size:0.78rem; margin:0; line-height:1.5;">
-                <b>Tips HP:</b> Jika foto dari Google Photos tidak muncul,
-                gunakan <b>File Manager</b> atau <b>Gallery bawaan</b> HP.
+                <b>Tips HP:</b> Gunakan Gallery bawaan HP atau File Manager.
                 Google Photos sering memutus koneksi saat berpindah app.
             </p>
-        </div>
-        """,
+        </div>""",
         unsafe_allow_html=True,
     )
 
@@ -224,11 +235,20 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
     else:
         with st.spinner("Sedang memproses dan mengompres foto..."):
             try:
-                log_traffic(user_name, nama_toko, tanggal_qc, layout_option)
+                # Build template string for traffic
+                template_str = f"{preset_name}, {selected_sheet}"
+
+                log_traffic(user_name, nama_toko, tanggal_qc, template_str, layout_option)
 
                 excel_file.seek(0)
                 wb = load_workbook(excel_file)
                 ws = wb[selected_sheet]
+
+                # AUTO: Write to cells B6, B7, D6
+                if cell_mode == "Auto":
+                    ws["B6"] = nama_toko
+                    ws["B7"] = convert_date_to_english(tanggal_qc)
+                    ws["D6"] = user_name
 
                 for c in COLS:
                     ws.column_dimensions[chr(64 + c)].width = COL_W
@@ -273,7 +293,11 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
                 shutil.rmtree(temp_dir, ignore_errors=True)
 
                 final_filename = f"{nama_toko.strip()} {tanggal_qc.strip()}.xlsx"
-                st.success(f"Berhasil menyusun & mengompres {success_count} foto!")
+
+                cell_msg = ""
+                if cell_mode == "Auto":
+                    cell_msg = " | Cell B6/B7/D6 terisi otomatis"
+                st.success(f"Berhasil menyusun {success_count} foto!{cell_msg}")
 
                 st.download_button(
                     label="DOWNLOAD FILE EXCEL",
