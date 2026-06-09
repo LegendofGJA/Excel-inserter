@@ -7,9 +7,6 @@ from PIL import ExifTags
 
 PRESETS_DIR = "presets"
 
-# =====================================================
-# iLOVEPDF DARK THEME CSS
-# =====================================================
 THEME_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -50,28 +47,31 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
 ::-webkit-scrollbar-thumb:hover { background: #353550; }
 ::selection { background: rgba(229,50,45,0.3); color: #fff; }
 
+/* FIX #1: Keep header visible for mobile sidebar toggle */
+[data-testid="stHeader"] {
+    background: transparent !important;
+    box-shadow: none !important;
+    border-bottom: none !important;
+}
+.stAppDeployButton { display: none !important; }
+#MainMenu { visibility: hidden; }
+footer { visibility: hidden; }
+
 [data-testid="stSidebar"] {
     background: #0e0e1a !important;
     border-right: 1px solid var(--border) !important;
 }
-section[data-testid="stSidebar"] [data-testid="stSidebarNav"] {
-    padding-top: 8px;
-}
+section[data-testid="stSidebar"] [data-testid="stSidebarNav"] { padding-top: 8px; }
 section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a {
-    color: var(--text-sec) !important;
-    border-radius: 8px !important;
-    padding: 8px 12px !important;
-    margin: 2px 8px !important;
-    transition: all 0.2s ease !important;
-    font-size: 0.88rem !important;
+    color: var(--text-sec) !important; border-radius: 8px !important;
+    padding: 8px 12px !important; margin: 2px 8px !important;
+    transition: all 0.2s ease !important; font-size: 0.88rem !important;
 }
 section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a:hover {
-    color: var(--text) !important;
-    background: var(--surface-2) !important;
+    color: var(--text) !important; background: var(--surface-2) !important;
 }
 section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a[aria-current="page"] {
-    color: var(--accent) !important;
-    background: var(--accent-soft) !important;
+    color: var(--accent) !important; background: var(--accent-soft) !important;
     font-weight: 600 !important;
 }
 
@@ -97,8 +97,8 @@ section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a[aria-current="pa
     font-size: 0.78rem !important;
 }
 [data-testid="stWidgetLabel"] label {
-    color: var(--text-sec) !important;
-    font-weight: 500 !important; font-size: 0.82rem !important;
+    color: var(--text-sec) !important; font-weight: 500 !important;
+    font-size: 0.82rem !important;
 }
 
 [data-testid="stTextInput"] input,
@@ -117,9 +117,7 @@ section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a[aria-current="pa
     box-shadow: 0 0 0 3px var(--accent-glow) !important;
     outline: none !important;
 }
-[data-testid="stTextInput"] input::placeholder {
-    color: var(--text-muted) !important;
-}
+[data-testid="stTextInput"] input::placeholder { color: var(--text-muted) !important; }
 
 [data-testid="stSelectbox"] > div > div {
     background: var(--surface-2) !important;
@@ -127,9 +125,7 @@ section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a[aria-current="pa
     border-radius: var(--radius-sm) !important;
     color: var(--text) !important;
 }
-[data-testid="stSelectbox"] > div > div:hover {
-    border-color: var(--border-hover) !important;
-}
+[data-testid="stSelectbox"] > div > div:hover { border-color: var(--border-hover) !important; }
 
 [data-testid="stRadio"] > div { gap: 8px !important; }
 [data-testid="stRadio"] label {
@@ -139,9 +135,7 @@ section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a[aria-current="pa
     padding: 0.4rem 0.85rem !important;
     transition: all 0.2s !important;
 }
-[data-testid="stRadio"] label:hover {
-    border-color: var(--accent) !important;
-}
+[data-testid="stRadio"] label:hover { border-color: var(--accent) !important; }
 
 [data-testid="stFileUploader"] {
     border: 2px dashed var(--accent) !important;
@@ -150,20 +144,14 @@ section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a[aria-current="pa
     padding: 24px 16px !important;
     transition: all 0.3s ease !important;
 }
-[data-testid="stFileUploader"]:hover {
-    background: rgba(229,50,45,0.07) !important;
-}
+[data-testid="stFileUploader"]:hover { background: rgba(229,50,45,0.07) !important; }
 [data-testid="stFileUploader"] button {
-    background: var(--surface-2) !important;
-    color: var(--accent) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    transition: all 0.2s !important;
+    background: var(--surface-2) !important; color: var(--accent) !important;
+    border: 1px solid var(--border) !important; border-radius: 8px !important;
+    font-weight: 600 !important; transition: all 0.2s !important;
 }
 [data-testid="stFileUploader"] button:hover {
-    background: var(--accent) !important;
-    color: #fff !important;
+    background: var(--accent) !important; color: #fff !important;
 }
 
 [data-testid="stButton"] button[kind="primary"] {
@@ -181,16 +169,12 @@ section[data-testid="stSidebar"] [data-testid="stSidebarNav"] a[aria-current="pa
     transform: translateY(-2px);
 }
 [data-testid="stButton"] button:not([kind="primary"]) {
-    background: var(--surface-2) !important;
-    color: var(--text-sec) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius-sm) !important;
-    font-weight: 500 !important;
-    transition: all 0.2s !important;
+    background: var(--surface-2) !important; color: var(--text-sec) !important;
+    border: 1px solid var(--border) !important; border-radius: var(--radius-sm) !important;
+    font-weight: 500 !important; transition: all 0.2s !important;
 }
 [data-testid="stButton"] button:not([kind="primary"]):hover {
-    border-color: var(--accent) !important;
-    color: var(--accent) !important;
+    border-color: var(--accent) !important; color: var(--accent) !important;
 }
 
 [data-testid="stDownloadButton"] a,
@@ -246,9 +230,8 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"]:hover 
     box-shadow: 0 4px 28px rgba(0,0,0,0.25) !important;
 }
 div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] {
-    background: transparent !important;
-    border: none !important; border-radius: 0 !important;
-    padding: 0 !important; box-shadow: none !important;
+    background: transparent !important; border: none !important;
+    border-radius: 0 !important; padding: 0 !important; box-shadow: none !important;
 }
 div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"]:hover {
     border-color: transparent !important; box-shadow: none !important;
@@ -259,32 +242,45 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] div[da
     border-bottom: 1px solid var(--border);
 }
 .card-head-icon {
-    width: 42px; height: 42px;
-    background: var(--accent-soft); border-radius: 11px;
+    width: 42px; height: 42px; background: var(--accent-soft); border-radius: 11px;
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 19px; margin-bottom: 12px;
 }
-.card-head h3 { font-size: 1rem !important; font-weight: 700 !important; color: var(--text) !important; margin: 0 0 4px 0 !important; }
-.card-head p { font-size: 0.78rem !important; color: var(--text-muted) !important; margin: 0 !important; }
+.card-head h3 {
+    font-size: 1rem !important; font-weight: 700 !important;
+    color: var(--text) !important; margin: 0 0 4px 0 !important;
+}
+.card-head p {
+    font-size: 0.78rem !important; color: var(--text-muted) !important; margin: 0 !important;
+}
 
-.upload-head { text-align: center; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.upload-head {
+    text-align: center; margin-bottom: 14px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+}
 .upload-head-icon {
-    width: 54px; height: 54px;
-    background: var(--accent-soft); border-radius: 14px;
+    width: 54px; height: 54px; background: var(--accent-soft); border-radius: 14px;
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 26px; margin-bottom: 10px;
 }
-.upload-head h3 { font-size: 1rem !important; font-weight: 700 !important; color: var(--text) !important; margin: 0 0 4px 0 !important; }
-.upload-head p { font-size: 0.78rem !important; color: var(--text-muted) !important; margin: 0 !important; }
+.upload-head h3 {
+    font-size: 1rem !important; font-weight: 700 !important;
+    color: var(--text) !important; margin: 0 0 4px 0 !important;
+}
+.upload-head p {
+    font-size: 0.78rem !important; color: var(--text-muted) !important; margin: 0 !important;
+}
 
 .page-head { text-align: center; padding: 32px 0 20px; }
 .page-head-icon {
-    width: 64px; height: 64px;
-    background: var(--accent-soft); border-radius: 16px;
+    width: 64px; height: 64px; background: var(--accent-soft); border-radius: 16px;
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 30px; margin-bottom: 14px;
 }
-.page-head h2 { font-size: 1.6rem !important; font-weight: 800 !important; color: var(--text) !important; margin: 0 0 6px !important; letter-spacing: -0.02em; }
+.page-head h2 {
+    font-size: 1.6rem !important; font-weight: 800 !important;
+    color: var(--text) !important; margin: 0 0 6px !important; letter-spacing: -0.02em;
+}
 .page-head p { color: var(--text-sec) !important; font-size: 0.92rem !important; margin: 0 !important; }
 
 .ilp-hero { text-align: center; padding: 52px 0 28px; position: relative; }
@@ -303,10 +299,19 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] div[da
     box-shadow: 0 8px 40px var(--accent-glow);
     animation: ilpFloat 3s ease-in-out infinite;
 }
-.ilp-hero h1 { font-size: 2.4rem; font-weight: 800; color: var(--text); margin: 0 0 8px; letter-spacing: -0.03em; }
-.ilp-hero p { color: var(--text-sec); font-size: 1rem; margin: 0; line-height: 1.6; max-width: 520px; display: inline-block; }
+.ilp-hero h1 {
+    font-size: 2.4rem; font-weight: 800; color: var(--text);
+    margin: 0 0 8px; letter-spacing: -0.03em;
+}
+.ilp-hero p {
+    color: var(--text-sec); font-size: 1rem; margin: 0;
+    line-height: 1.6; max-width: 520px; display: inline-block;
+}
 
-.tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 36px 0; }
+.tools-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 20px; margin: 36px 0;
+}
 .tool-card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 32px 24px; text-align: center;
@@ -317,21 +322,30 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] div[da
     box-shadow: 0 12px 40px rgba(229,50,45,0.12);
 }
 .tool-card-icon {
-    width: 56px; height: 56px;
-    background: var(--accent-soft); border-radius: 14px;
+    width: 56px; height: 56px; background: var(--accent-soft); border-radius: 14px;
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 26px; margin-bottom: 16px;
 }
-.tool-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin: 0 0 8px; }
-.tool-card p { font-size: 0.82rem; color: var(--text-muted); margin: 0 0 16px; line-height: 1.5; }
+.tool-card h3 {
+    font-size: 1.05rem; font-weight: 700; color: var(--text); margin: 0 0 8px;
+}
+.tool-card p {
+    font-size: 0.82rem; color: var(--text-muted); margin: 0 0 16px; line-height: 1.5;
+}
 .tool-card-tag {
     display: inline-block; background: var(--accent-soft); color: var(--accent);
     padding: 4px 12px; border-radius: 20px;
     font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em;
 }
 
-.ilp-steps { display: flex; align-items: flex-start; justify-content: center; gap: 0; margin: 36px 0; flex-wrap: wrap; }
-.ilp-step { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 80px; }
+.ilp-steps {
+    display: flex; align-items: flex-start; justify-content: center;
+    gap: 0; margin: 36px 0; flex-wrap: wrap;
+}
+.ilp-step {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 8px; min-width: 80px;
+}
 .ilp-step-num {
     width: 36px; height: 36px; border-radius: 50%;
     background: var(--surface-2); border: 2px solid var(--border);
@@ -342,12 +356,17 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] div[da
     background: var(--accent); border-color: var(--accent); color: #fff;
     box-shadow: 0 0 16px var(--accent-glow);
 }
-.ilp-step-label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-align: center; }
+.ilp-step-label {
+    font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-align: center;
+}
 .ilp-step.active .ilp-step-label { color: var(--text-sec); }
 .ilp-step-line { width: 52px; height: 2px; background: var(--border); margin-top: 17px; }
 .ilp-step-line.active { background: var(--accent); }
 
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 24px 0; }
+.stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px; margin: 24px 0;
+}
 .stat-card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 24px 20px; text-align: center;
@@ -367,8 +386,29 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] div[da
 .ilp-user-hint { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px; }
 
 .ilp-action-head { text-align: center; margin-bottom: 16px; }
-.ilp-action-head h3 { font-size: 1.1rem !important; font-weight: 700 !important; color: var(--text) !important; margin: 0 0 4px !important; }
-.ilp-action-head p { font-size: 0.82rem !important; color: var(--text-muted) !important; margin: 0 !important; }
+.ilp-action-head h3 {
+    font-size: 1.1rem !important; font-weight: 700 !important;
+    color: var(--text) !important; margin: 0 0 4px !important;
+}
+.ilp-action-head p {
+    font-size: 0.82rem !important; color: var(--text-muted) !important; margin: 0 !important;
+}
+
+/* Preview image container */
+.preview-container {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden; margin: 16px 0;
+}
+.preview-container img { width: 100%; display: block; }
+
+/* Rename row styling */
+.rename-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    margin-bottom: 8px; transition: border-color 0.2s;
+}
+.rename-row:hover { border-color: var(--border-hover); }
 
 hr {
     border: none !important; height: 1px !important;
@@ -382,19 +422,10 @@ hr {
     border: 1px solid var(--border) !important;
 }
 [data-testid="stNumberInput"] button:hover {
-    background: var(--accent) !important;
-    color: #fff !important;
+    background: var(--accent) !important; color: #fff !important;
 }
 
-[data-testid="stColorPicker"] > div {
-    background: var(--surface-2) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius-sm) !important;
-}
-
-[data-testid="stSlider"] [data-testid="stTickBar"] {
-    color: var(--text-muted) !important;
-}
+[data-testid="stSlider"] [data-testid="stTickBar"] { color: var(--text-muted) !important; }
 
 @keyframes ilpFloat {
     0%, 100% { transform: translateY(0); }
@@ -431,10 +462,6 @@ hr {
 [data-testid="stVerticalBlock"] > div:nth-child(18) { animation-delay: 0.68s; }
 [data-testid="stVerticalBlock"] > div:nth-child(19) { animation-delay: 0.72s; }
 [data-testid="stVerticalBlock"] > div:nth-child(20) { animation-delay: 0.76s; }
-
-#MainMenu { visibility: hidden; }
-footer { visibility: hidden; }
-header { visibility: hidden; }
 
 @media (max-width: 768px) {
     .tools-grid { grid-template-columns: 1fr; }
@@ -492,7 +519,42 @@ def inject_footer():
     )
 
 
-def log_traffic(user, toko, tgl_qc, layout):
+def convert_date_to_english(date_str):
+    """Convert date string to English format: '10 Mar 26' -> '10 March 2026'"""
+    if not date_str or not date_str.strip():
+        return ""
+
+    date_str = date_str.strip()
+
+    MONTH_MAP = {
+        "jan": "January", "januari": "January",
+        "feb": "February", "februari": "February",
+        "mar": "March", "maret": "March",
+        "apr": "April",
+        "mei": "May", "may": "May",
+        "jun": "June", "juni": "June",
+        "jul": "July", "juli": "July",
+        "agu": "August", "agustus": "August", "aug": "August",
+        "sep": "September",
+        "okt": "October", "oktober": "October", "oct": "October",
+        "nov": "November",
+        "des": "December", "dec": "December",
+    }
+
+    parts = date_str.split()
+    if len(parts) == 3:
+        day, month_abbr, year = parts
+        month_key = month_abbr.lower()
+        if month_key in MONTH_MAP:
+            month_full = MONTH_MAP[month_key]
+            if len(year) == 2 and year.isdigit():
+                year = "20" + year
+            return f"{day} {month_full} {year}"
+
+    return date_str
+
+
+def log_traffic(user, toko, tgl_qc, template, layout):
     JSONBLOB_ID = "019e8740-72c4-7731-8328-0e2c67465233"
     API_URL = f"https://jsonblob.com/api/jsonBlob/{JSONBLOB_ID}"
     try:
@@ -510,7 +572,8 @@ def log_traffic(user, toko, tgl_qc, layout):
             "Nama Toko": toko,
             "Tanggal QC": tgl_qc,
             "Timestamp": timestamp,
-            "Ukuran Layout": layout,
+            "Template": template,
+            "Opsi Layout": layout,
         })
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         put_response = requests.put(API_URL, json=data, headers=headers)
