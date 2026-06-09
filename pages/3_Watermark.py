@@ -1,5 +1,6 @@
 import streamlit as st
 import zipfile
+import os
 from PIL import Image as PILImage, ImageDraw, ImageFont
 from io import BytesIO
 from style import inject_css, inject_sidebar_brand, inject_footer, correct_orientation
@@ -19,6 +20,25 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# FONT HELPER
+FONT_PATHS = [
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+    "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf",
+    "C:\\Windows\\Fonts\\arialbd.ttf",
+]
+
+
+def get_font(size):
+    for path in FONT_PATHS:
+        if os.path.exists(path):
+            return ImageFont.truetype(path, size)
+    try:
+        return ImageFont.load_default(size=size)
+    except TypeError:
+        return ImageFont.load_default()
+
+
 # WATERMARK SETTINGS
 st.markdown("##### Pengaturan Watermark")
 col1, col2 = st.columns(2)
@@ -30,13 +50,20 @@ with col1:
 with col2:
     wm_position = st.selectbox("Posisi Watermark:", [
         "Bawah Kanan", "Bawah Kiri", "Bawah Tengah",
+        "Tengah (Center)",
         "Atas Kanan", "Atas Kiri", "Atas Tengah",
     ])
-    wm_opacity = st.slider("Transparansi", 50, 255, 180, step=10)
+    wm_opacity = st.slider("Transparansi", 50, 255, 200, step=10)
 
 col3, col4 = st.columns(2)
 with col3:
-    wm_font_size = st.slider("Ukuran Font", 16, 120, 48, step=4)
+    size_preset = st.selectbox("Preset Ukuran Font:", [
+        "Sedang (56px)", "Kecil (36px)", "Besar (80px)", "Sangat Besar (120px)", "Custom"
+    ])
+    if size_preset == "Custom":
+        wm_font_size = st.slider("Custom Font Size", 20, 200, 56, step=2)
+    else:
+        wm_font_size = int(size_preset.split("(")[1].replace("px)", ""))
 with col4:
     wm_color = st.selectbox("Warna Teks:", ["Putih", "Kuning", "Merah", "Hijau", "Biru"])
 
@@ -48,39 +75,24 @@ COLOR_MAP = {
     "Biru": (80, 160, 255),
 }
 
-st.markdown("---")
-
-# UPLOAD
-uploaded_images = st.file_uploader(
-    "Upload foto untuk ditambahkan watermark",
-    type=["jpg", "jpeg", "png", "webp"],
-    accept_multiple_files=True,
-)
-
 
 def add_watermark(img, line1, line2, position, color_rgb, opacity, font_size):
-    """Tambahkan watermark multi-line ke gambar"""
     img = img.copy()
     if img.mode != "RGBA":
         img = img.convert("RGBA")
 
     txt_layer = PILImage.new("RGBA", img.size, (255, 255, 255, 0))
     draw = ImageDraw.Draw(txt_layer)
+    font = get_font(font_size)
 
-    try:
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
-    except Exception:
-        try:
-            font = ImageFont.truetype("arial.ttf", font_size)
-        except Exception:
-            font = ImageFont.load_default()
-
-    # Hitung ukuran teks
     lines = [l for l in [line1, line2] if l.strip()]
+    if not lines:
+        return img.convert("RGB")
+
     line_heights = []
     line_widths = []
-    padding = int(font_size * 0.6)
-    margin = int(font_size * 1.2)
+    padding = int(font_size * 0.5)
+    margin = int(font_size * 1.0)
 
     for line in lines:
         bbox = draw.textbbox((0, 0), line, font=font)
@@ -92,28 +104,24 @@ def add_watermark(img, line1, line2, position, color_rgb, opacity, font_size):
 
     w, h = img.size
 
-    # Hitung posisi
     positions_map = {
         "Bawah Kanan":  (w - max_text_width - margin, h - total_text_height - margin),
         "Bawah Kiri":   (margin, h - total_text_height - margin),
         "Bawah Tengah": ((w - max_text_width) // 2, h - total_text_height - margin),
+        "Tengah (Center)": ((w - max_text_width) // 2, (h - total_text_height) // 2),
         "Atas Kanan":   (w - max_text_width - margin, margin),
         "Atas Kiri":    (margin, margin),
         "Atas Tengah":  ((w - max_text_width) // 2, margin),
     }
     x, y = positions_map.get(position, positions_map["Bawah Kanan"])
 
-    # Background bar
-    bg_padding = int(font_size * 0.4)
-    bg_coords = [
-        x - bg_padding,
-        y - bg_padding,
-        x + max_text_width + bg_padding,
-        y + total_text_height + bg_padding,
-    ]
-    draw.rectangle(bg_coords, fill=(0, 0, 0, int(opacity * 0.6)))
+    bg_padding = int(font_size * 0.35)
+    draw.rectangle(
+        [x - bg_padding, y - bg_padding,
+         x + max_text_width + bg_padding, y + total_text_height + bg_padding],
+        fill=(0, 0, 0, int(opacity * 0.55)),
+    )
 
-    # Gambar teks
     current_y = y
     for i, line in enumerate(lines):
         draw.text((x, current_y), line, font=font, fill=(*color_rgb, opacity))
@@ -122,14 +130,43 @@ def add_watermark(img, line1, line2, position, color_rgb, opacity, font_size):
     return PILImage.alpha_composite(img, txt_layer).convert("RGB")
 
 
-if uploaded_images:
-    st.info(f"{len(uploaded_images)} foto dipilih.")
+# UPLOAD
+st.markdown("---")
+uploaded_images = st.file_uploader(
+    "Upload foto untuk ditambahkan watermark",
+    type=["jpg", "jpeg", "png", "webp"],
+    accept_multiple_files=True,
+)
 
-    if st.button("TAMBAHKAN WATERMARK", type="primary", use_container_width=True):
+# REAL-TIME PREVIEW
+if uploaded_images and wm_text_line1.strip():
+    st.markdown("---")
+    st.markdown("##### Preview Watermark")
+
+    first_file = uploaded_images[0]
+    first_file.seek(0)
+
+    with PILImage.open(first_file) as preview_img:
+        preview_img = correct_orientation(preview_img)
+        preview_img.thumbnail((800, 800), PILImage.Resampling.LANCZOS)
+        color_rgb = COLOR_MAP.get(wm_color, (255, 255, 255))
+        result = add_watermark(
+            preview_img, wm_text_line1, wm_text_line2,
+            wm_position, color_rgb, wm_opacity, wm_font_size,
+        )
+
+    st.image(result, caption="Preview - Foto pertama dengan watermark", use_container_width=True)
+
+# DOWNLOAD SECTION
+if uploaded_images:
+    st.markdown("---")
+    st.info(f"{len(uploaded_images)} foto dipilih. Klik tombol di bawah untuk proses semua.")
+
+    if st.button("TAMBAHKAN WATERMARK & DOWNLOAD", type="primary", use_container_width=True):
         if not wm_text_line1.strip():
             st.warning("Isi minimal Baris 1 watermark!")
         else:
-            with st.spinner("Menambahkan watermark..."):
+            with st.spinner("Menambahkan watermark ke semua foto..."):
                 zip_buffer = BytesIO()
                 color_rgb = COLOR_MAP.get(wm_color, (255, 255, 255))
 
