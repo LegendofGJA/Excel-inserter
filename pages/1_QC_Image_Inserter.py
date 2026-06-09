@@ -101,13 +101,14 @@ with col_template:
             st.warning("Folder 'presets/' kosong.")
 
     selected_sheet = None
+    all_sheet_names = []
     if excel_file:
         try:
             excel_file.seek(0)
             wb_scan = load_workbook(excel_file, read_only=True)
-            sheet_names = wb_scan.sheetnames
+            all_sheet_names = wb_scan.sheetnames
             wb_scan.close()
-            selected_sheet = st.selectbox("Target Sheet:", sheet_names)
+            selected_sheet = st.selectbox("Target Sheet (Foto):", all_sheet_names)
         except Exception as e:
             st.error(f"Gagal membaca struktur Excel: {e}")
 
@@ -120,6 +121,31 @@ cell_mode = st.radio(
     horizontal=True,
     help="Manual: Anda isi sendiri di Excel setelah download. Auto: Sistem otomatis isi dari data yang sudah dimasukkan.",
 )
+
+cell_target_sheet = None
+if cell_mode == "Auto":
+    if all_sheet_names:
+        default_cell_sheet = "DETAIL AUDIT" if "DETAIL AUDIT" in all_sheet_names else all_sheet_names[0]
+        cell_target_sheet = st.selectbox(
+            "Target Sheet (Cell B6/B7/D6):",
+            all_sheet_names,
+            index=all_sheet_names.index(default_cell_sheet) if default_cell_sheet in all_sheet_names else 0,
+            help="Pilih sheet tempat menulis Store Name, Tanggal, dan Nama Pengguna.",
+        )
+        st.markdown(
+            f"""<div style="background:rgba(229,50,45,0.06); border:1px solid rgba(229,50,45,0.15);
+                 border-radius:10px; padding:12px 16px; margin-top:8px;">
+                <p style="color:#fca5a5; font-size:0.82rem; margin:0; line-height:1.6;">
+                    Cell <b>B6</b> = Nama Toko &nbsp;|&nbsp;
+                    Cell <b>B7</b> = Tanggal QC &nbsp;|&nbsp;
+                    Cell <b>D6</b> = Nama Pengguna<br>
+                    Target: <b>{cell_target_sheet}</b>
+                </p>
+            </div>""",
+            unsafe_allow_html=True,
+        )
+    else:
+        st.warning("Tidak ada sheet yang terdeteksi.")
 
 # ROW 2 - LAYOUT & UPLOAD FOTO
 col_layout, col_foto = st.columns(2, gap="medium")
@@ -185,7 +211,8 @@ with col_foto:
              border-radius:10px; padding:10px 14px; margin-bottom:14px;">
             <p style="color:#fcd34d; font-size:0.78rem; margin:0; line-height:1.5;">
                 <b>Tips HP:</b> Gunakan Gallery bawaan HP atau File Manager.
-                Google Photos sering memutus koneksi saat berpindah app.
+                Google Photos sering memutus koneksi. Jika reconnecting,
+                tunggu beberapa detik lalu coba lagi.
             </p>
         </div>""",
         unsafe_allow_html=True,
@@ -231,24 +258,27 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
     elif not uploaded_photos:
         st.warning("Silakan pilih foto QC!")
     elif not selected_sheet:
-        st.error("Target sheet tidak valid.")
+        st.error("Target sheet foto tidak valid.")
+    elif cell_mode == "Auto" and not cell_target_sheet:
+        st.error("Target sheet cell (DETAIL AUDIT) tidak valid.")
     else:
         with st.spinner("Sedang memproses dan mengompres foto..."):
             try:
-                # Build template string for traffic
                 template_str = f"{preset_name}, {selected_sheet}"
-
                 log_traffic(user_name, nama_toko, tanggal_qc, template_str, layout_option)
 
                 excel_file.seek(0)
                 wb = load_workbook(excel_file)
-                ws = wb[selected_sheet]
 
-                # AUTO: Write to cells B6, B7, D6
-                if cell_mode == "Auto":
-                    ws["B6"] = nama_toko
-                    ws["B7"] = convert_date_to_english(tanggal_qc)
-                    ws["D6"] = user_name
+                # AUTO: Write to cells B6, B7, D6 in target sheet
+                if cell_mode == "Auto" and cell_target_sheet:
+                    if cell_target_sheet in wb.sheetnames:
+                        ws_cell = wb[cell_target_sheet]
+                        ws_cell["B6"] = nama_toko
+                        ws_cell["B7"] = convert_date_to_english(tanggal_qc)
+                        ws_cell["D6"] = user_name
+
+                ws = wb[selected_sheet]
 
                 for c in COLS:
                     ws.column_dimensions[chr(64 + c)].width = COL_W
@@ -295,8 +325,8 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
                 final_filename = f"{nama_toko.strip()} {tanggal_qc.strip()}.xlsx"
 
                 cell_msg = ""
-                if cell_mode == "Auto":
-                    cell_msg = " | Cell B6/B7/D6 terisi otomatis"
+                if cell_mode == "Auto" and cell_target_sheet:
+                    cell_msg = f" | Cell B6/B7/D6 terisi otomatis di sheet '{cell_target_sheet}'"
                 st.success(f"Berhasil menyusun {success_count} foto!{cell_msg}")
 
                 st.download_button(
