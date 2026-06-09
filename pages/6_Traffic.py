@@ -7,7 +7,6 @@ st.set_page_config(page_title="Traffic Log", page_icon="📊", layout="wide")
 inject_css()
 inject_sidebar_brand()
 
-# PAGE HEADER
 st.markdown(
     """
     <div class="page-head">
@@ -19,7 +18,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# FETCH DATA
 JSONBLOB_ID = "019e8740-72c4-7731-8328-0e2c67465233"
 API_URL = f"https://jsonblob.com/api/jsonBlob/{JSONBLOB_ID}"
 
@@ -69,7 +67,29 @@ if data:
 
     st.markdown("---")
     st.markdown("##### Riwayat Aktivitas")
-    st.dataframe(df.iloc[::-1], use_container_width=True, hide_index=True)
+
+    # Display columns (handle old data without Template field)
+    display_cols = [
+        "Nama Pengguna", "Nama Toko", "Tanggal QC", "Timestamp", "Template", "Opsi Layout"
+    ]
+    available_cols = [c for c in display_cols if c in df.columns]
+
+    # Also handle old "Ukuran Layout" field
+    if "Ukuran Layout" in df.columns and "Opsi Layout" not in df.columns:
+        df = df.rename(columns={"Ukuran Layout": "Opsi Layout"})
+        if "Opsi Layout" not in available_cols and "Ukuran Layout" in available_cols:
+            available_cols = [c if c != "Ukuran Layout" else "Opsi Layout" for c in available_cols]
+        if "Opsi Layout" not in available_cols:
+            available_cols.append("Opsi Layout")
+
+    # Fill missing columns with dash
+    for col in display_cols:
+        if col not in df.columns:
+            df[col] = "-"
+
+    available_cols = [c for c in display_cols if c in df.columns]
+
+    st.dataframe(df[available_cols].iloc[::-1], use_container_width=True, hide_index=True)
 else:
     st.info("Belum ada data traffic yang tercatat.")
 
