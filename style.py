@@ -47,7 +47,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
 ::-webkit-scrollbar-thumb:hover { background: #353550; }
 ::selection { background: rgba(229,50,45,0.3); color: #fff; }
 
-/* FIX #1: Keep header visible for mobile sidebar toggle */
+/* Header visible for mobile sidebar toggle */
 [data-testid="stHeader"] {
     background: transparent !important;
     box-shadow: none !important;
@@ -308,17 +308,32 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] div[da
     line-height: 1.6; max-width: 520px; display: inline-block;
 }
 
+/* CLICKABLE TOOL CARDS */
 .tools-grid {
     display: grid; grid-template-columns: repeat(3, 1fr);
     gap: 20px; margin: 36px 0;
 }
+
+a.tool-card-link {
+    text-decoration: none !important;
+    color: inherit !important;
+    outline: none !important;
+    display: block;
+    transition: transform 0.3s ease;
+}
+a.tool-card-link:hover {
+    transform: translateY(-4px);
+}
+
 .tool-card {
     background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 32px 24px; text-align: center;
     transition: all 0.3s ease;
+    cursor: pointer;
+    height: 100%;
 }
-.tool-card:hover {
-    border-color: var(--accent); transform: translateY(-4px);
+a.tool-card-link:hover .tool-card {
+    border-color: var(--accent);
     box-shadow: 0 12px 40px rgba(229,50,45,0.12);
 }
 .tool-card-icon {
@@ -393,22 +408,6 @@ div[data-testid="stHorizontalBlock"] > div[data-testid="stVerticalBlock"] div[da
 .ilp-action-head p {
     font-size: 0.82rem !important; color: var(--text-muted) !important; margin: 0 !important;
 }
-
-/* Preview image container */
-.preview-container {
-    border: 1px solid var(--border); border-radius: var(--radius);
-    overflow: hidden; margin: 16px 0;
-}
-.preview-container img { width: 100%; display: block; }
-
-/* Rename row styling */
-.rename-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 10px 14px; background: var(--surface);
-    border: 1px solid var(--border); border-radius: var(--radius-sm);
-    margin-bottom: 8px; transition: border-color 0.2s;
-}
-.rename-row:hover { border-color: var(--border-hover); }
 
 hr {
     border: none !important; height: 1px !important;
@@ -520,12 +519,9 @@ def inject_footer():
 
 
 def convert_date_to_english(date_str):
-    """Convert date string to English format: '10 Mar 26' -> '10 March 2026'"""
     if not date_str or not date_str.strip():
         return ""
-
     date_str = date_str.strip()
-
     MONTH_MAP = {
         "jan": "January", "januari": "January",
         "feb": "February", "februari": "February",
@@ -540,7 +536,6 @@ def convert_date_to_english(date_str):
         "nov": "November",
         "des": "December", "dec": "December",
     }
-
     parts = date_str.split()
     if len(parts) == 3:
         day, month_abbr, year = parts
@@ -550,7 +545,6 @@ def convert_date_to_english(date_str):
             if len(year) == 2 and year.isdigit():
                 year = "20" + year
             return f"{day} {month_full} {year}"
-
     return date_str
 
 
