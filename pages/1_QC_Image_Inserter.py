@@ -276,7 +276,7 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
                         ws_cell = wb[cell_target_sheet]
                         ws_cell["B6"] = nama_toko
                         ws_cell["B7"] = convert_date_to_english(tanggal_qc)
-                        ws_cell["D6"] = user_name
+                        ws_cell["E6"] = user_name
 
                 ws = wb[selected_sheet]
 
