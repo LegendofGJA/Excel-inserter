@@ -3,6 +3,7 @@ import os
 import shutil
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image as ExcelImage
+from openpyxl.styles import Alignment
 from PIL import Image as PILImage
 from io import BytesIO
 from style import (
@@ -422,9 +423,14 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
                             ws_ttd.column_dimensions[col_letter].width = TTD_COL_W
                             ws_ttd.row_dimensions[row_num].height = TTD_ROW_H
 
-                    # Tulis nama Auditor & PIC
-                    ws_ttd[TTD_NAMA_AUDITOR_CELL] = user_name
-                    ws_ttd[TTD_NAMA_PIC_CELL] = pic
+                    # Tulis nama Auditor & PIC dengan alignment center
+                    cell_auditor = ws_ttd[TTD_NAMA_AUDITOR_CELL]
+                    cell_auditor.value = user_name
+                    cell_auditor.alignment = Alignment(horizontal='center', vertical='center')
+
+                    cell_pic = ws_ttd[TTD_NAMA_PIC_CELL]
+                    cell_pic.value = pic
+                    cell_pic.alignment = Alignment(horizontal='center', vertical='center')
 
                     # TTD Auditor → gambar
                     if ttd_auditor:
