@@ -70,6 +70,7 @@ with col_info:
     )
     nama_toko = st.text_input("Nama Toko / Area", placeholder="Contoh: Batavia PIK")
     tanggal_qc = st.text_input("Tanggal QC", placeholder="Contoh: 10 Mar 26")
+    pic = st.text_input("PIC", placeholder="Contoh: Budi Santoso")
 
 with col_template:
     st.markdown(
@@ -82,14 +83,11 @@ with col_template:
         """,
         unsafe_allow_html=True,
     )
-    mode_template = st.radio("Sumber template:", ["Upload Manual", "File Preset"], horizontal=True)
+    mode_template = st.radio("Sumber template:", ["File Preset", "Upload Manual"], horizontal=True)
 
     excel_file = None
     preset_name = ""
-    if mode_template == "Upload Manual":
-        excel_file = st.file_uploader("Pilih file Excel (.xlsx)", type=["xlsx"], label_visibility="collapsed")
-        preset_name = "Upload Manual"
-    else:
+    if mode_template == "File Preset":
         available_presets = get_preset_files()
         if available_presets:
             preset_pilihan = st.selectbox("Pilih file preset:", available_presets)
@@ -99,6 +97,9 @@ with col_template:
                 excel_file = BytesIO(f.read())
         else:
             st.warning("Folder 'presets/' kosong.")
+    else:
+        excel_file = st.file_uploader("Pilih file Excel (.xlsx)", type=["xlsx"], label_visibility="collapsed")
+        preset_name = "Upload Manual"
 
     selected_sheet = None
     all_sheet_names = []
@@ -108,7 +109,12 @@ with col_template:
             wb_scan = load_workbook(excel_file, read_only=True)
             all_sheet_names = wb_scan.sheetnames
             wb_scan.close()
-            selected_sheet = st.selectbox("Target Sheet (Foto):", all_sheet_names)
+            default_sheet = "ATTACHMENT" if "ATTACHMENT" in all_sheet_names else all_sheet_names[0]
+            selected_sheet = st.selectbox(
+                "Target Sheet (Foto):",
+                all_sheet_names,
+                index=all_sheet_names.index(default_sheet) if default_sheet in all_sheet_names else 0,
+            )
         except Exception as e:
             st.error(f"Gagal membaca struktur Excel: {e}")
 
@@ -116,7 +122,7 @@ with col_template:
 st.markdown("---")
 st.markdown("##### Store Name, Audit & Date QC")
 cell_mode = st.radio(
-    "Pilih mode pengisian cell Excel (B6, B7, D6):",
+    "Pilih mode pengisian cell Excel (B6, B7, E6, E7):",
     ["Manual", "Auto"],
     horizontal=True,
     help="Manual: Anda isi sendiri di Excel setelah download. Auto: Sistem otomatis isi dari data yang sudah dimasukkan.",
@@ -127,10 +133,10 @@ if cell_mode == "Auto":
     if all_sheet_names:
         default_cell_sheet = "DETAIL AUDIT" if "DETAIL AUDIT" in all_sheet_names else all_sheet_names[0]
         cell_target_sheet = st.selectbox(
-            "Target Sheet (Cell B6/B7/D6):",
+            "Target Sheet (Cell B6/B7/E6/E7):",
             all_sheet_names,
             index=all_sheet_names.index(default_cell_sheet) if default_cell_sheet in all_sheet_names else 0,
-            help="Pilih sheet tempat menulis Store Name, Tanggal, dan Nama Pengguna.",
+            help="Pilih sheet tempat menulis Store Name, Tanggal, Nama Pengguna, dan PIC.",
         )
         st.markdown(
             f"""<div style="background:rgba(229,50,45,0.06); border:1px solid rgba(229,50,45,0.15);
@@ -138,7 +144,8 @@ if cell_mode == "Auto":
                 <p style="color:#fca5a5; font-size:0.82rem; margin:0; line-height:1.6;">
                     Cell <b>B6</b> = Nama Toko &nbsp;|&nbsp;
                     Cell <b>B7</b> = Tanggal QC &nbsp;|&nbsp;
-                    Cell <b>D6</b> = Nama Pengguna<br>
+                    Cell <b>E6</b> = Nama Pengguna &nbsp;|&nbsp;
+                    Cell <b>E7</b> = PIC<br>
                     Target: <b>{cell_target_sheet}</b>
                 </p>
             </div>""",
@@ -147,96 +154,140 @@ if cell_mode == "Auto":
     else:
         st.warning("Tidak ada sheet yang terdeteksi.")
 
-# ROW 2 - LAYOUT & UPLOAD FOTO
-col_layout, col_foto = st.columns(2, gap="medium")
+# PENGATURAN LAYOUT
+st.markdown("---")
+st.markdown(
+    """
+    <div class="card-head">
+        <div class="card-head-icon">⚙️</div>
+        <h3>Pengaturan Layout</h3>
+        <p>Atur ukuran dan posisi gambar di Excel</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-with col_layout:
+layout_option = st.selectbox("Opsi Layout:", ["Default", "Custom"])
+
+if layout_option == "Default":
+    ROWS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
+    COLS = [1, 2, 3, 4, 5, 6]
+    COL_W = 20.43
+    ROW_H = 123.75
+    IMAGE_WIDTH_CM = 3.2
+    IMAGE_HEIGHT_CM = 4.10
+else:
+    c_row, c_col = st.columns(2)
+    r_in = c_row.text_input("Rows (koma)", "2,4,6,8,10,12")
+    c_in = c_col.text_input("Columns (koma)", "1,2,3,4,5,6")
+    try:
+        ROWS = [int(x.strip()) for x in r_in.split(",")]
+        COLS = [int(x.strip()) for x in c_in.split(",")]
+    except Exception:
+        st.error("Format Rows/Columns salah!")
+        st.stop()
+    c_w, c_h = st.columns(2)
+    COL_W = c_w.number_input("Col Width", value=20.43)
+    ROW_H = c_h.number_input("Row Height", value=123.75)
+    i_w, i_h = st.columns(2)
+    IMAGE_WIDTH_CM = i_w.number_input("Image Width (cm)", value=3.2)
+    IMAGE_HEIGHT_CM = i_h.number_input("Image Height (cm)", value=4.10)
+
+# TANDA TANGAN - PENGESEHAN FORM QC
+st.markdown("---")
+st.markdown(
+    """
+    <div class="card-head">
+        <div class="card-head-icon">✍️</div>
+        <h3>Pengesahan Form QC</h3>
+        <p>Upload foto tanda tangan Auditor dan PIC sebagai pengesahan form quality control</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+col_ttd_auditor, col_ttd_pic = st.columns(2, gap="medium")
+
+with col_ttd_auditor:
     st.markdown(
         """
         <div class="card-head">
-            <div class="card-head-icon">⚙️</div>
-            <h3>Pengaturan Layout</h3>
-            <p>Atur ukuran dan posisi gambar di Excel</p>
+            <h3>Tanda Tangan Auditor</h3>
+            <p>Nama dari Nama Pengguna &rarr; Cell A163</p>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    layout_option = st.selectbox("Opsi Layout:", ["LGJA", "Sultan", "Vano", "Custom"])
+    ttd_auditor = st.file_uploader(
+        "Upload foto tanda tangan Auditor",
+        type=["jpg", "jpeg", "png", "webp"],
+        key="ttd_auditor",
+    )
+    if ttd_auditor:
+        st.success(f"TTD Auditor: {ttd_auditor.name}")
 
-    if layout_option == "LGJA":
-        ROWS = [2, 4, 6, 8, 10, 12]
-        COLS = list(range(1, 13))
-        COL_W = 41
-        ROW_H = 246
-        IMAGE_WIDTH_CM = 6.4
-        IMAGE_HEIGHT_CM = 8.30
-    elif layout_option in ["Sultan", "Vano"]:
-        ROWS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
-        COLS = [1, 2, 3, 4, 5, 6]
-        COL_W = 20.43
-        ROW_H = 123.75
-        IMAGE_WIDTH_CM = 3.2
-        IMAGE_HEIGHT_CM = 4.10
-    else:
-        c_row, c_col = st.columns(2)
-        r_in = c_row.text_input("Rows (koma)", "2,4,6,8,10,12")
-        c_in = c_col.text_input("Columns (koma)", "1,2,3,4,5,6")
-        try:
-            ROWS = [int(x.strip()) for x in r_in.split(",")]
-            COLS = [int(x.strip()) for x in c_in.split(",")]
-        except Exception:
-            st.error("Format Rows/Columns salah!")
-            st.stop()
-        c_w, c_h = st.columns(2)
-        COL_W = c_w.number_input("Col Width", value=20.43)
-        ROW_H = c_h.number_input("Row Height", value=123.75)
-        i_w, i_h = st.columns(2)
-        IMAGE_WIDTH_CM = i_w.number_input("Image Width (cm)", value=3.2)
-        IMAGE_HEIGHT_CM = i_h.number_input("Image Height (cm)", value=4.10)
-
-with col_foto:
+with col_ttd_pic:
     st.markdown(
         """
-        <div class="upload-head">
-            <div class="upload-head-icon">📸</div>
-            <h3>Upload Foto QC</h3>
-            <p>Pilih semua foto sekaligus dari galeri HP</p>
+        <div class="card-head">
+            <h3>Tanda Tangan PIC</h3>
+            <p>Nama dari input PIC &rarr; Cell D163</p>
         </div>
         """,
         unsafe_allow_html=True,
     )
-
-    st.markdown(
-        """<div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2);
-             border-radius:10px; padding:10px 14px; margin-bottom:14px;">
-            <p style="color:#fcd34d; font-size:0.78rem; margin:0; line-height:1.5;">
-                <b>Tips HP:</b> Gunakan Gallery bawaan HP atau File Manager.
-                Google Photos sering memutus koneksi. Jika reconnecting,
-                tunggu beberapa detik lalu coba lagi.
-            </p>
-        </div>""",
-        unsafe_allow_html=True,
-    )
-
-    if "uploader_key" not in st.session_state:
-        st.session_state.uploader_key = 0
-
-    if st.button("Hapus Semua Foto (Reset)"):
-        st.session_state.uploader_key += 1
-        st.rerun()
-
-    uploaded_photos = st.file_uploader(
-        "Pilih semua foto sekaligus dari Galeri",
+    ttd_pic = st.file_uploader(
+        "Upload foto tanda tangan PIC",
         type=["jpg", "jpeg", "png", "webp"],
-        accept_multiple_files=True,
-        key=f"photos_{st.session_state.uploader_key}",
-        label_visibility="collapsed",
+        key="ttd_pic",
     )
+    if ttd_pic:
+        st.success(f"TTD PIC: {ttd_pic.name}")
 
-    if uploaded_photos:
-        st.success(f"{len(uploaded_photos)} foto dipilih")
-    else:
-        st.caption("Belum ada foto yang dipilih")
+# UPLOAD FOTO QC
+st.markdown("---")
+st.markdown(
+    """
+    <div class="upload-head">
+        <div class="upload-head-icon">📸</div>
+        <h3>Upload Foto QC</h3>
+        <p>Pilih semua foto sekaligus dari galeri HP</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    """<div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2);
+         border-radius:10px; padding:10px 14px; margin-bottom:14px;">
+        <p style="color:#fcd34d; font-size:0.78rem; margin:0; line-height:1.5;">
+            <b>Tips HP:</b> Gunakan Gallery bawaan HP atau File Manager.
+            Google Photos sering memutus koneksi. Jika reconnecting,
+            tunggu beberapa detik lalu coba lagi.
+        </p>
+    </div>""",
+    unsafe_allow_html=True,
+)
+
+if "uploader_key" not in st.session_state:
+    st.session_state.uploader_key = 0
+
+if st.button("Hapus Semua Foto (Reset)"):
+    st.session_state.uploader_key += 1
+    st.rerun()
+
+uploaded_photos = st.file_uploader(
+    "Pilih semua foto sekaligus dari Galeri",
+    type=["jpg", "jpeg", "png", "webp"],
+    accept_multiple_files=True,
+    key=f"photos_{st.session_state.uploader_key}",
+    label_visibility="collapsed",
+)
+
+if uploaded_photos:
+    st.success(f"{len(uploaded_photos)} foto dipilih")
+else:
+    st.caption("Belum ada foto yang dipilih")
 
 # ACTION
 st.markdown("---")
@@ -260,7 +311,7 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
     elif not selected_sheet:
         st.error("Target sheet foto tidak valid.")
     elif cell_mode == "Auto" and not cell_target_sheet:
-        st.error("Target sheet cell (DETAIL AUDIT) tidak valid.")
+        st.error("Target sheet cell tidak valid.")
     else:
         with st.spinner("Sedang memproses dan mengompres foto..."):
             try:
@@ -270,14 +321,66 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
                 excel_file.seek(0)
                 wb = load_workbook(excel_file)
 
-                # AUTO: Write to cells B6, B7, D6 in target sheet
-                if cell_mode == "Auto" and cell_target_sheet:
-                    if cell_target_sheet in wb.sheetnames:
-                        ws_cell = wb[cell_target_sheet]
-                        ws_cell["B6"] = nama_toko
-                        ws_cell["B7"] = convert_date_to_english(tanggal_qc)
-                        ws_cell["E6"] = user_name
+                temp_dir = "temp_web_photos"
+                os.makedirs(temp_dir, exist_ok=True)
 
+                # ── Tentukan sheet untuk penulisan cell & tanda tangan ──
+                if cell_mode == "Auto" and cell_target_sheet:
+                    write_sheet_name = cell_target_sheet
+                else:
+                    write_sheet_name = (
+                        "DETAIL AUDIT" if "DETAIL AUDIT" in wb.sheetnames
+                        else wb.sheetnames[0]
+                    )
+
+                # ── AUTO: Tulis B6, B7, E6, E7 ──
+                if cell_mode == "Auto" and write_sheet_name in wb.sheetnames:
+                    ws_cell = wb[write_sheet_name]
+                    ws_cell["B6"] = nama_toko
+                    ws_cell["B7"] = convert_date_to_english(tanggal_qc)
+                    ws_cell["E6"] = user_name
+                    ws_cell["E7"] = pic
+
+                # ── TANDA TANGAN: Tulis nama & gambar ke A161/D161, A163/D163 ──
+                if write_sheet_name in wb.sheetnames:
+                    ws_ttd = wb[write_sheet_name]
+
+                    # Nama Auditor & PIC selalu ditulis
+                    ws_ttd["A163"] = user_name
+                    ws_ttd["D163"] = pic
+
+                    SIGNATURE_WIDTH_CM = 5
+                    SIGNATURE_HEIGHT_CM = 2
+
+                    # TTD Auditor → A161
+                    if ttd_auditor:
+                        with PILImage.open(ttd_auditor) as img_pil:
+                            img_pil = correct_orientation(img_pil)
+                            if img_pil.mode in ("RGBA", "P"):
+                                img_pil = img_pil.convert("RGB")
+                            img_pil.thumbnail((800, 400), PILImage.Resampling.LANCZOS)
+                            ttd_a_path = os.path.join(temp_dir, "ttd_auditor.jpg")
+                            img_pil.save(ttd_a_path, format="JPEG", quality=85, optimize=True)
+                        img_ttd_a = ExcelImage(ttd_a_path)
+                        img_ttd_a.width = int(SIGNATURE_WIDTH_CM * 37.8)
+                        img_ttd_a.height = int(SIGNATURE_HEIGHT_CM * 37.8)
+                        ws_ttd.add_image(img_ttd_a, "A161")
+
+                    # TTD PIC → D161
+                    if ttd_pic:
+                        with PILImage.open(ttd_pic) as img_pil:
+                            img_pil = correct_orientation(img_pil)
+                            if img_pil.mode in ("RGBA", "P"):
+                                img_pil = img_pil.convert("RGB")
+                            img_pil.thumbnail((800, 400), PILImage.Resampling.LANCZOS)
+                            ttd_p_path = os.path.join(temp_dir, "ttd_pic.jpg")
+                            img_pil.save(ttd_p_path, format="JPEG", quality=85, optimize=True)
+                        img_ttd_p = ExcelImage(ttd_p_path)
+                        img_ttd_p.width = int(SIGNATURE_WIDTH_CM * 37.8)
+                        img_ttd_p.height = int(SIGNATURE_HEIGHT_CM * 37.8)
+                        ws_ttd.add_image(img_ttd_p, "D161")
+
+                # ── FOTO QC: Susun ke sheet target ──
                 ws = wb[selected_sheet]
 
                 for c in COLS:
@@ -292,9 +395,6 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
                 )
                 all_cells = [f"{chr(64 + col)}{row}" for row in ROWS for col in COLS]
                 success_count = 0
-
-                temp_dir = "temp_web_photos"
-                os.makedirs(temp_dir, exist_ok=True)
 
                 for i in range(min(len(sorted_photos), len(all_cells))):
                     photo = sorted_photos[i]
@@ -326,7 +426,10 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
 
                 cell_msg = ""
                 if cell_mode == "Auto" and cell_target_sheet:
-                    cell_msg = f" | Cell B6/B7/D6 terisi otomatis di sheet '{cell_target_sheet}'"
+                    cell_msg = (
+                        f" | Cell B6/B7/E6/E7 terisi otomatis"
+                        f" di sheet '{cell_target_sheet}'"
+                    )
                 st.success(f"Berhasil menyusun {success_count} foto!{cell_msg}")
 
                 st.download_button(
