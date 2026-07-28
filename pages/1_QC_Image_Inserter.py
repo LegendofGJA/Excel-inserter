@@ -11,6 +11,41 @@ from style import (
     get_preset_files, convert_date_to_english,
 )
 
+
+# ── Helpers ──────────────────────────────────────────────
+
+def col_letter_to_num(letter):
+    result = 0
+    for ch in letter.strip().upper():
+        if ch.isalpha():
+            result = result * 26 + (ord(ch) - 64)
+    return result
+
+
+def col_num_to_letter(num):
+    result = ""
+    while num > 0:
+        num, remainder = divmod(num - 1, 26)
+        result = chr(65 + remainder) + result
+    return result
+
+
+def parse_cell_ref(cell_str):
+    cell_str = cell_str.strip().upper()
+    col_part = ""
+    row_part = ""
+    for ch in cell_str:
+        if ch.isalpha():
+            col_part += ch
+        elif ch.isdigit():
+            row_part += ch
+    col_num = col_letter_to_num(col_part) if col_part else None
+    row_num = int(row_part) if row_part else None
+    return col_num, row_num
+
+
+# ── Page Config ──────────────────────────────────────────
+
 st.set_page_config(page_title="QC Image Inserter", page_icon="📸", layout="wide")
 inject_css()
 inject_sidebar_brand()
@@ -54,7 +89,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ROW 1 - INFO LOKASI & TEMPLATE EXCEL
+# ── ROW 1: INFO LOKASI & TEMPLATE EXCEL ─────────────────
+
 col_info, col_template = st.columns(2, gap="medium")
 
 with col_info:
@@ -118,7 +154,8 @@ with col_template:
         except Exception as e:
             st.error(f"Gagal membaca struktur Excel: {e}")
 
-# CELL WRITING MODE
+# ── CELL WRITING MODE ────────────────────────────────────
+
 st.markdown("---")
 st.markdown("##### Store Name, Audit & Date QC")
 cell_mode = st.radio(
@@ -154,7 +191,8 @@ if cell_mode == "Auto":
     else:
         st.warning("Tidak ada sheet yang terdeteksi.")
 
-# PENGATURAN LAYOUT
+# ── PENGATURAN LAYOUT QC PHOTOS ──────────────────────────
+
 st.markdown("---")
 st.markdown(
     """
@@ -179,12 +217,12 @@ if layout_option == "Default":
 else:
     c_row, c_col = st.columns(2)
     r_in = c_row.text_input("Rows (koma)", "2,4,6,8,10,12")
-    c_in = c_col.text_input("Columns (koma)", "1,2,3,4,5,6")
+    c_in = c_col.text_input("Columns (huruf, koma)", "A,B,C,D,E,F")
     try:
         ROWS = [int(x.strip()) for x in r_in.split(",")]
-        COLS = [int(x.strip()) for x in c_in.split(",")]
+        COLS = [col_letter_to_num(x.strip()) for x in c_in.split(",")]
     except Exception:
-        st.error("Format Rows/Columns salah!")
+        st.error("Format salah! Rows pakai angka (2,4,6), Columns pakai huruf (A,B,C)")
         st.stop()
     c_w, c_h = st.columns(2)
     COL_W = c_w.number_input("Col Width", value=20.43)
@@ -193,7 +231,8 @@ else:
     IMAGE_WIDTH_CM = i_w.number_input("Image Width (cm)", value=3.2)
     IMAGE_HEIGHT_CM = i_h.number_input("Image Height (cm)", value=4.10)
 
-# TANDA TANGAN - PENGESEHAN FORM QC
+# ── TANDA TANGAN — PENGESEHAN FORM QC ────────────────────
+
 st.markdown("---")
 st.markdown(
     """
@@ -206,6 +245,34 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+ttd_mode = st.selectbox("Opsi Tanda Tangan:", ["Default", "Custom"])
+
+if ttd_mode == "Default":
+    TTD_IMG_AUDITOR_CELL = "A161"
+    TTD_IMG_PIC_CELL = "D161"
+    TTD_NAMA_AUDITOR_CELL = "A163"
+    TTD_NAMA_PIC_CELL = "D163"
+    TTD_IMG_W = 3.20
+    TTD_IMG_H = 3.20
+    TTD_COL_W = 19.71
+    TTD_ROW_H = 97.5
+else:
+    st.markdown("##### Posisi Cell Tanda Tangan")
+    ca, cb = st.columns(2)
+    TTD_IMG_AUDITOR_CELL = ca.text_input("Cell gambar TTD Auditor", value="A161")
+    TTD_IMG_PIC_CELL = cb.text_input("Cell gambar TTD PIC", value="D161")
+    cc, cd = st.columns(2)
+    TTD_NAMA_AUDITOR_CELL = cc.text_input("Cell nama Auditor", value="A163")
+    TTD_NAMA_PIC_CELL = cd.text_input("Cell nama PIC", value="D163")
+
+    st.markdown("##### Ukuran Gambar & Cell TTD")
+    ce, cf = st.columns(2)
+    TTD_IMG_W = ce.number_input("Image Width (cm)", value=3.20, step=0.1, format="%.2f")
+    TTD_IMG_H = cf.number_input("Image Height (cm)", value=3.20, step=0.1, format="%.2f")
+    cg, c_row_h = st.columns(2)
+    TTD_COL_W = cg.number_input("Col Width", value=19.71, step=0.1, format="%.2f")
+    TTD_ROW_H = c_row_h.number_input("Row Height", value=97.5, step=0.5, format="%.1f")
+
 col_ttd_auditor, col_ttd_pic = st.columns(2, gap="medium")
 
 with col_ttd_auditor:
@@ -213,7 +280,7 @@ with col_ttd_auditor:
         """
         <div class="card-head">
             <h3>Tanda Tangan Auditor</h3>
-            <p>Nama dari Nama Pengguna &rarr; Cell A163</p>
+            <p>Nama dari Nama Pengguna</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -231,7 +298,7 @@ with col_ttd_pic:
         """
         <div class="card-head">
             <h3>Tanda Tangan PIC</h3>
-            <p>Nama dari input PIC &rarr; Cell D163</p>
+            <p>Nama dari input PIC</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -244,7 +311,8 @@ with col_ttd_pic:
     if ttd_pic:
         st.success(f"TTD PIC: {ttd_pic.name}")
 
-# UPLOAD FOTO QC
+# ── UPLOAD FOTO QC ───────────────────────────────────────
+
 st.markdown("---")
 st.markdown(
     """
@@ -289,7 +357,8 @@ if uploaded_photos:
 else:
     st.caption("Belum ada foto yang dipilih")
 
-# ACTION
+# ── ACTION ───────────────────────────────────────────────
+
 st.markdown("---")
 st.markdown(
     """
@@ -341,18 +410,23 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
                     ws_cell["E6"] = user_name
                     ws_cell["E7"] = pic
 
-                # ── TANDA TANGAN: Tulis nama & gambar ke A161/D161, A163/D163 ──
+                # ── TANDA TANGAN ──
                 if write_sheet_name in wb.sheetnames:
                     ws_ttd = wb[write_sheet_name]
 
-                    # Nama Auditor & PIC selalu ditulis
-                    ws_ttd["A163"] = user_name
-                    ws_ttd["D163"] = pic
+                    # Set kolom width & row height untuk cell gambar TTD
+                    for cell_ref in [TTD_IMG_AUDITOR_CELL, TTD_IMG_PIC_CELL]:
+                        col_num, row_num = parse_cell_ref(cell_ref)
+                        if col_num and row_num:
+                            col_letter = col_num_to_letter(col_num)
+                            ws_ttd.column_dimensions[col_letter].width = TTD_COL_W
+                            ws_ttd.row_dimensions[row_num].height = TTD_ROW_H
 
-                    SIGNATURE_WIDTH_CM = 5
-                    SIGNATURE_HEIGHT_CM = 2
+                    # Tulis nama Auditor & PIC
+                    ws_ttd[TTD_NAMA_AUDITOR_CELL] = user_name
+                    ws_ttd[TTD_NAMA_PIC_CELL] = pic
 
-                    # TTD Auditor → A161
+                    # TTD Auditor → gambar
                     if ttd_auditor:
                         with PILImage.open(ttd_auditor) as img_pil:
                             img_pil = correct_orientation(img_pil)
@@ -362,11 +436,11 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
                             ttd_a_path = os.path.join(temp_dir, "ttd_auditor.jpg")
                             img_pil.save(ttd_a_path, format="JPEG", quality=85, optimize=True)
                         img_ttd_a = ExcelImage(ttd_a_path)
-                        img_ttd_a.width = int(SIGNATURE_WIDTH_CM * 37.8)
-                        img_ttd_a.height = int(SIGNATURE_HEIGHT_CM * 37.8)
-                        ws_ttd.add_image(img_ttd_a, "A161")
+                        img_ttd_a.width = int(TTD_IMG_W * 37.8)
+                        img_ttd_a.height = int(TTD_IMG_H * 37.8)
+                        ws_ttd.add_image(img_ttd_a, TTD_IMG_AUDITOR_CELL)
 
-                    # TTD PIC → D161
+                    # TTD PIC → gambar
                     if ttd_pic:
                         with PILImage.open(ttd_pic) as img_pil:
                             img_pil = correct_orientation(img_pil)
@@ -376,15 +450,15 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
                             ttd_p_path = os.path.join(temp_dir, "ttd_pic.jpg")
                             img_pil.save(ttd_p_path, format="JPEG", quality=85, optimize=True)
                         img_ttd_p = ExcelImage(ttd_p_path)
-                        img_ttd_p.width = int(SIGNATURE_WIDTH_CM * 37.8)
-                        img_ttd_p.height = int(SIGNATURE_HEIGHT_CM * 37.8)
-                        ws_ttd.add_image(img_ttd_p, "D161")
+                        img_ttd_p.width = int(TTD_IMG_W * 37.8)
+                        img_ttd_p.height = int(TTD_IMG_H * 37.8)
+                        ws_ttd.add_image(img_ttd_p, TTD_IMG_PIC_CELL)
 
                 # ── FOTO QC: Susun ke sheet target ──
                 ws = wb[selected_sheet]
 
                 for c in COLS:
-                    ws.column_dimensions[chr(64 + c)].width = COL_W
+                    ws.column_dimensions[col_num_to_letter(c)].width = COL_W
                 for r in ROWS:
                     ws.row_dimensions[r].height = ROW_H
 
@@ -393,7 +467,7 @@ if st.button("MULAI EXPORT DAN PROSES DATA", type="primary", use_container_width
                     key=lambda x: extract_datetime(x.name, x),
                     reverse=True,
                 )
-                all_cells = [f"{chr(64 + col)}{row}" for row in ROWS for col in COLS]
+                all_cells = [f"{col_num_to_letter(col)}{row}" for row in ROWS for col in COLS]
                 success_count = 0
 
                 for i in range(min(len(sorted_photos), len(all_cells))):
